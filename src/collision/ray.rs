@@ -4,9 +4,10 @@ use raylib::prelude::{Color, RaylibDraw, Vector2};
 pub struct Ray2D {
     pub position: Vector2,
     pub direction: Vector2,
-    pub contact_point: Vector2,
-    pub contact_normal: Vector2,
-    pub contact_time: f32,
+    contact_point: Vector2,
+    contact_normal: Vector2,
+    contact_time: f32,
+    colliding: u8,
 }
 
 impl Ray2D {
@@ -22,6 +23,7 @@ impl Ray2D {
             contact_point: Vector2::new(0.0, 0.0),
             contact_normal: Vector2::new(0.0, 0.0),
             contact_time: 0.0,
+            colliding: 0,
         }
     }
 
@@ -36,9 +38,23 @@ impl Ray2D {
         self
     }
 
+    pub fn set_position(&mut self, x: f32, y: f32) {
+        self.position.x = x;
+        self.position.y = y;
+    }
+
     pub fn is_colliding(&self) -> bool {
-        self.position.distance_to(self.contact_point)
-            <= self.position.distance_to(self.position + self.direction)
+        // self.position.distance_to(self.contact_point)
+        //     <= self.position.distance_to(self.position + self.direction)
+        self.colliding > 0
+    }
+
+    pub fn collisions(&self) -> u8 {
+        self.colliding
+    }
+
+    pub fn reset_colliding(&mut self) {
+        self.colliding = 0;
     }
 
     /// Draw ray line
@@ -105,6 +121,15 @@ impl Ray2D {
         // Note if t_near == t_far, collision is principly in a diagonal
         // so pointless to resolve. By returning a CN={0,0} even though its
         // considered a hit, the resolver wont change anything.
-        return self.contact_time >= 0.0 && self.contact_time <= 1.0;
+        let collide = self.contact_time >= 0.0 && self.contact_time <= 1.0;
+
+        if collide {
+            self.colliding = match self.colliding.overflowing_add(1) {
+                (val, false) => val,
+                (val, true) => u8::MAX,
+            }
+        }
+
+        collide
     }
 }

@@ -1,9 +1,7 @@
 use super::{Player, PlayerState::*};
 use crate::math::Math;
 
-pub fn on_enter(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
-    println!("fall!");
-}
+pub fn on_enter(player: &mut Player, raylib: &mut raylib::RaylibHandle) {}
 
 pub fn on_exit(player: &mut Player, raylib: &mut raylib::RaylibHandle) {}
 

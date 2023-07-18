@@ -2,8 +2,6 @@ use super::{Player, PlayerState::*};
 use crate::math::Math;
 
 pub fn on_enter(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
-    println!("crouched!");
-
     if player.collider.size.y != Player::COLLISION_SIZE.x {
         // change hitbox height
         player.collider.size.y = Player::COLLISION_SIZE.x;

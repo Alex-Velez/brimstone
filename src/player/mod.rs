@@ -152,21 +152,12 @@ impl Player {
         // get frame time
         self.frame_time = raylib.get_frame_time_limited();
 
-        // commit test
-
         // ledge to wall slide transition
-        if self.collider.on_floor()
-            && ((self.state == PlayerState::Crouching)
-                || (self.state == PlayerState::CrouchWalking))
-        {
-            let collider_half = self.collider.size.x / 2.0;
-            // update ray position
-            self.ground_ray.position.x = self.collider.position.x + collider_half;
-            self.ground_ray.position.y = self.collider.position.y + self.collider.size.y;
-
+        if self.collider.on_floor() && self.move_dir.y == 1.0 {
             // move collider, force collision resolution to wall
             if !self.ground_ray.is_colliding() {
-                self.collider.position.y += collider_half;
+                self.collider.position.y += self.collider.size.x / 2.0;
+                println!("ledge to slide");
             }
         }
 

@@ -1,8 +1,6 @@
 use super::{Player, PlayerState::*};
 
 pub fn on_enter(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
-    println!("wall slide!");
-
     if raylib.is_key_down(player.controls.up) {
         player.collider.velocity.y = 0.0;
     }
@@ -10,8 +8,6 @@ pub fn on_enter(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
 
 pub fn on_exit(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
     if raylib.is_key_down(player.controls.up) {
-        println!("wall jump!");
-
         // add jump force from wall
         player.collider.velocity.x -= player.collider.colliding.x * player.jump * 1.5;
     }

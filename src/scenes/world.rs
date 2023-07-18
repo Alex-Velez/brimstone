@@ -45,11 +45,21 @@ impl Scene for Environment {
         {
             // reset player collisons
             self.player.collider.reset_colliding();
+            self.player.ground_ray.reset_colliding();
 
             // collide player & floors
             for floor in &mut self.floors {
                 self.player.collider.collide_rect(floor);
-                self.player.ground_ray.check_rect(floor);
+
+                if self.player.collider.on_floor() {
+                    // update ray position
+                    self.player.ground_ray.set_position(
+                        self.player.collider.position.x + (self.player.collider.size.x / 2.0),
+                        self.player.collider.position.y + self.player.collider.size.y,
+                    );
+                    // check ray collision
+                    self.player.ground_ray.check_rect(floor);
+                }
             }
         }
     }
