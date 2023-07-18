@@ -23,7 +23,7 @@ impl GameState {
             window: Window::new(raylib),
             stage: Stage::init(raylib, thread),
             scene_machine: SceneMachine::init(raylib, thread),
-            debug: true,
+            debug: false,
             paused: false,
             exit: false,
         }
