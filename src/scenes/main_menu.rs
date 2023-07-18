@@ -1,6 +1,6 @@
 use crate::{
     paths::main_menu,
-    scene::Scene,
+    scene_machine::Scene,
     sprite::{ParallaxLayer2D, Sprite2D},
 };
 use raylib::prelude::{Color, RaylibDraw, RaylibDrawHandle, RaylibHandle, RaylibThread, Vector2};
@@ -66,8 +66,6 @@ impl Scene for Environment {
             self.logo.rect.x = (win_width / 2.0) - (self.logo.rect.width / 2.0);
         }
     }
-
-    fn on_exit(&mut self, raylib: &mut RaylibHandle) {}
 
     fn update(&mut self, raylib: &mut RaylibHandle) {
         let win_width = raylib.get_screen_width() as f32;
@@ -151,11 +149,5 @@ impl Scene for Environment {
 
         // draw logo
         self.logo.draw(raylib);
-    }
-
-    fn debug(&self, raylib: &mut RaylibDrawHandle) {}
-
-    fn id(&self) -> String {
-        String::from("Main Menu")
     }
 }

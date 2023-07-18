@@ -1,4 +1,4 @@
-use crate::{collision, player::Player, raylib_plugins::CameraEx2D, scene::Scene};
+use crate::{collision, player::Player, raylib_plugins::CameraEx2D, scene_machine::Scene};
 use raylib::prelude::{
     Color, RaylibDraw, RaylibDrawHandle, RaylibHandle, RaylibMode2DExt, RaylibThread,
 };
@@ -31,10 +31,6 @@ impl Environment {
 }
 
 impl Scene for Environment {
-    fn on_enter(&mut self, raylib: &mut RaylibHandle) {}
-
-    fn on_exit(&mut self, raylib: &mut RaylibHandle) {}
-
     fn update(&mut self, raylib: &mut RaylibHandle) {
         // update player
         self.player.update(raylib);
@@ -135,9 +131,5 @@ impl Scene for Environment {
             let y_pos = 70 + (i as i32 * 20);
             raylib.draw_text(val.1, 10, y_pos, 20, val.0);
         }
-    }
-
-    fn id(&self) -> String {
-        String::from("MainMenu")
     }
 }

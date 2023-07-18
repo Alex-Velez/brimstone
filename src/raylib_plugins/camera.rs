@@ -1,7 +1,7 @@
 use crate::{math::Math, raylib_plugins::FrameLimiter, window};
 use raylib::prelude::{Camera2D, RaylibHandle, Vector2};
 
-const ZOOM_MINIMUM: f32 = -0.5; // zoom out multiplier
+const ZOOM_MINIMUM: f32 = 0.5; // zoom out multiplier
 const ZOOM_MAXIMUM: f32 = 1.00; // zoom in multiplier
 const ZOOM_STEP_AMOUNT: f32 = 64.00;
 

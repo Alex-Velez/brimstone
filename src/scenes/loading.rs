@@ -1,10 +1,10 @@
-use crate::{paths, scene::Scene, sprite::Sprite2D};
+use crate::{paths, scene_machine::Scene, sprite::Sprite2D};
 use raylib::prelude::{
     Color, RaylibDraw, RaylibDrawHandle, RaylibHandle, RaylibThread, Rectangle, Vector2,
 };
 
 /// Loading constant values
-const BACKGROUND_TOP_COLOR: Color = Color::new(50, 50, 50, 255);
+const BACKGROUND_TOP_COLOR: Color = Color::MAROON;
 const BACKGROUND_BOTTOM_COLOR: Color = Color::new(10, 10, 10, 255);
 const LOADING_ICON_ROTATION_SPEED: f64 = 360.0;
 
@@ -64,21 +64,18 @@ impl Scene for Environment {
         );
 
         // loading text
+        let time = raylib.get_time() as f32;
+        let amount = (((1.5 * time.sin()) + 1.5).round()) as usize;
+        let txt = &format!("Loading{}", ".".repeat(amount));
         raylib.draw_text(
-            "Loading...",
+            txt,
             (win_width / 16.0) as i32,
             (win_height / 16.0) as i32,
             (win_width / 10.0) as i32,
-            Color::BEIGE,
+            Color::WHITE,
         );
 
         // loading sprite
         self.icon.draw(raylib);
-    }
-
-    fn debug(&self, raylib: &mut RaylibDrawHandle) {}
-
-    fn id(&self) -> String {
-        String::from("Loading")
     }
 }
