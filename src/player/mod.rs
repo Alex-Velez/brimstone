@@ -58,6 +58,7 @@ pub struct Player {
 
     // physics
     pub collider: collision::Rect,
+    pub ground_ray: collision::Ray2D,
     pub frame_time: f32,
     pub gravity: f32,
     pub ground_friction: f32,
@@ -97,6 +98,9 @@ impl Player {
 
             // physics
             collider: collision::Rect::newv(Player::COLLISION_SIZE).set_position(200.0, 100.0),
+            ground_ray: collision::Ray2D::new()
+                .with_position(200.0, 100.0)
+                .with_direction(collision::Ray2D::DOWN * 50.0),
             frame_time: 0.0,
             gravity: 1500.0,
             ground_friction: 1.0,
@@ -147,6 +151,22 @@ impl Player {
 
         // get frame time
         self.frame_time = raylib.get_frame_time_limited();
+
+        // ledge to wall slide transition
+        if self.collider.on_floor()
+            && ((self.state == PlayerState::Crouching)
+                || (self.state == PlayerState::CrouchWalking))
+        {
+            let collider_half = self.collider.size.x / 2.0;
+            // update ray position
+            self.ground_ray.position.x = self.collider.position.x + collider_half;
+            self.ground_ray.position.y = self.collider.position.y + self.collider.size.y;
+
+            // move collider, force collision resolution to wall
+            if !self.ground_ray.is_colliding() {
+                self.collider.position.y += collider_half;
+            }
+        }
 
         // reset x velocity on wall collision
         if self.collider.on_wall() {

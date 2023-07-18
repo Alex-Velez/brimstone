@@ -2,48 +2,6 @@ use super::Rect;
 use raylib::prelude::{Color, RaylibDraw, Vector2};
 
 pub struct Ray2D {
-    pub start: Vector2,
-    pub end: Vector2,
-}
-
-impl Ray2D {
-    pub const fn new() -> Self {
-        Ray2D {
-            start: Vector2::new(0.0, 0.0),
-            end: Vector2::new(0.0, 0.0),
-        }
-    }
-
-    pub const fn from(start: Vector2, end: Vector2) -> Self {
-        Self { start, end }
-    }
-
-    pub fn with_start(&mut self, start: Vector2) {
-        self.start = start;
-    }
-
-    pub fn with_end(&mut self, end: Vector2) {
-        self.end = end;
-    }
-
-    /// Draw ray line
-    pub fn draw(&self, color: Color, raylib: &mut impl RaylibDraw) {
-        // line
-        raylib.draw_line_v(self.start, self.end, color);
-
-        // position
-        raylib.draw_circle_v(self.start, 10.0, color.fade(0.5));
-    }
-}
-
-impl Ray2D {
-    fn collide_rect(&mut self, rect: &Rect) -> bool {
-        false
-    }
-}
-
-/*
-pub struct Ray2D {
     pub position: Vector2,
     pub direction: Vector2,
     pub contact_point: Vector2,
@@ -52,6 +10,11 @@ pub struct Ray2D {
 }
 
 impl Ray2D {
+    pub const UP: Vector2 = Vector2::new(0.0, -1.0);
+    pub const DOWN: Vector2 = Vector2::new(0.0, 1.0);
+    pub const LEFT: Vector2 = Vector2::new(-1.0, 0.0);
+    pub const RIGHT: Vector2 = Vector2::new(1.0, 0.0);
+
     pub const fn new() -> Ray2D {
         Ray2D {
             position: Vector2::new(0.0, 0.0),
@@ -62,7 +25,21 @@ impl Ray2D {
         }
     }
 
-    pub fn with_direction() {}
+    pub fn with_position(mut self, x: f32, y: f32) -> Self {
+        self.position.x = x;
+        self.position.y = y;
+        self
+    }
+
+    pub fn with_direction(mut self, direction: Vector2) -> Self {
+        self.direction = direction;
+        self
+    }
+
+    pub fn is_colliding(&self) -> bool {
+        self.position.distance_to(self.contact_point)
+            <= self.position.distance_to(self.position + self.direction)
+    }
 
     /// Draw ray line
     pub fn draw(&self, color: Color, raylib: &mut impl RaylibDraw) {
@@ -71,11 +48,14 @@ impl Ray2D {
 
         // position
         raylib.draw_circle_v(self.position, 10.0, color.fade(0.5));
+
+        // contact
+        raylib.draw_circle_v(self.contact_point, 10.0, color.fade(0.5))
     }
 }
 
 impl Ray2D {
-    fn collide_rect(&mut self, rect: &mut Rect) -> bool {
+    pub fn check_rect(&mut self, rect: &mut Rect) -> bool {
         // Calculate intersections with rectangle bounding axes
         let mut t_near = (rect.position - self.position) / self.direction;
         let mut t_far = (rect.position + rect.size - self.position) / self.direction;
@@ -128,4 +108,3 @@ impl Ray2D {
         return self.contact_time >= 0.0 && self.contact_time <= 1.0;
     }
 }
-*/

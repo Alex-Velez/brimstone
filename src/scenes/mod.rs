@@ -10,8 +10,8 @@ mod world;
 #[derive(Debug, Default, PartialEq, Eq, Hash)]
 pub enum SceneID {
     Loading,
-    #[default]
     MainMenu,
+    #[default]
     World,
     EndMenu,
     SplashScreen,

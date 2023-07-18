@@ -42,12 +42,12 @@ impl Rect {
 
     /// Check if bottom is colliding
     pub fn on_floor(&self) -> bool {
-        self.colliding.y == -1.0
+        self.colliding.y <= -1.0
     }
 
     /// Check if top is colliding
     pub fn on_roof(&self) -> bool {
-        self.colliding.y == 1.0
+        self.colliding.y >= 1.0
     }
 
     /// Check if sides are colliding
@@ -57,7 +57,7 @@ impl Rect {
 
     /// Check if left side is colliding
     pub fn on_wall_left(&self) -> bool {
-        self.colliding.x == -1.0
+        self.colliding.x <= -1.0
     }
 
     /// Check if right side is colliding
@@ -139,22 +139,22 @@ impl Rect {
             if x_offset < y_offset {
                 if horizontal {
                     self.position.x = rect2.position.x - self.size.x; // move left
-                    self.colliding.x = 1.0;
-                    rect2.colliding.x = -1.0;
+                    self.colliding.x += 1.0;
+                    rect2.colliding.x += -1.0;
                 } else {
                     self.position.x = rect2.position.x + rect2.size.x; // move right
-                    self.colliding.x = -1.0;
-                    rect2.colliding.x = 1.0;
+                    self.colliding.x += -1.0;
+                    rect2.colliding.x += 1.0;
                 }
             } else {
                 if vertical {
                     self.position.y = rect2.position.y - self.size.y; // move up
-                    self.colliding.y = -1.0;
-                    rect2.colliding.y = 1.0;
+                    self.colliding.y += -1.0;
+                    rect2.colliding.y += 1.0;
                 } else {
                     self.position.y = rect2.position.y + rect2.size.y; // move down
-                    self.colliding.y = 1.0;
-                    rect2.colliding.y = -1.0;
+                    self.colliding.y += 1.0;
+                    rect2.colliding.y += -1.0;
                 }
             }
 
