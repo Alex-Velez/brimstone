@@ -31,3 +31,13 @@ where
         self.exit.insert(state, exit_fn);
     }
 }
+
+impl<T, O> Default for StateMachine<T, O> {
+    fn default() -> Self {
+        Self {
+            update: HashMap::new(),
+            enter: HashMap::new(),
+            exit: HashMap::new(),
+        }
+    }
+}

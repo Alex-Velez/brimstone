@@ -1,4 +1,4 @@
-use super::*;
+use raylib::prelude::{KeyboardKey, MouseButton};
 
 pub struct Controls {
     pub up: KeyboardKey,

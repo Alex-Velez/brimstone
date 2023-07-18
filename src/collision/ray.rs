@@ -1,6 +1,48 @@
-use super::{Rect, StaticCollisonResolution};
+use super::Rect;
 use raylib::prelude::{Color, RaylibDraw, Vector2};
 
+pub struct Ray2D {
+    pub start: Vector2,
+    pub end: Vector2,
+}
+
+impl Ray2D {
+    pub const fn new() -> Self {
+        Ray2D {
+            start: Vector2::new(0.0, 0.0),
+            end: Vector2::new(0.0, 0.0),
+        }
+    }
+
+    pub const fn from(start: Vector2, end: Vector2) -> Self {
+        Self { start, end }
+    }
+
+    pub fn with_start(&mut self, start: Vector2) {
+        self.start = start;
+    }
+
+    pub fn with_end(&mut self, end: Vector2) {
+        self.end = end;
+    }
+
+    /// Draw ray line
+    pub fn draw(&self, color: Color, raylib: &mut impl RaylibDraw) {
+        // line
+        raylib.draw_line_v(self.start, self.end, color);
+
+        // position
+        raylib.draw_circle_v(self.start, 10.0, color.fade(0.5));
+    }
+}
+
+impl Ray2D {
+    fn collide_rect(&mut self, rect: &Rect) -> bool {
+        false
+    }
+}
+
+/*
 pub struct Ray2D {
     pub position: Vector2,
     pub direction: Vector2,
@@ -20,6 +62,8 @@ impl Ray2D {
         }
     }
 
+    pub fn with_direction() {}
+
     /// Draw ray line
     pub fn draw(&self, color: Color, raylib: &mut impl RaylibDraw) {
         // line
@@ -30,8 +74,8 @@ impl Ray2D {
     }
 }
 
-impl StaticCollisonResolution<Rect> for Ray2D {
-    fn collide(&mut self, rect: &mut Rect) -> bool {
+impl Ray2D {
+    fn collide_rect(&mut self, rect: &mut Rect) -> bool {
         // Calculate intersections with rectangle bounding axes
         let mut t_near = (rect.position - self.position) / self.direction;
         let mut t_far = (rect.position + rect.size - self.position) / self.direction;
@@ -84,3 +128,4 @@ impl StaticCollisonResolution<Rect> for Ray2D {
         return self.contact_time >= 0.0 && self.contact_time <= 1.0;
     }
 }
+*/

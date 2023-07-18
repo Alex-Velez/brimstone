@@ -11,7 +11,6 @@ mod raylib_plugins;
 mod scene_machine;
 mod scenes;
 mod sprite;
-mod state_machine;
 mod timer;
 mod window;
 

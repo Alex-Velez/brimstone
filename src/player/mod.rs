@@ -1,17 +1,18 @@
 use crate::{
-    collision,
-    math::{self, Math},
+    collision, math,
     paths::player::advn,
     raylib_plugins::FrameLimiter,
     sprite::{AnimationPlayer2D, AnimationPlayerBuilder},
-    state_machine::StateMachine,
 };
-use raylib::prelude::{KeyboardKey, MouseButton, RaylibDraw, RaylibHandle, RaylibThread, Vector2};
+use raylib::prelude::{RaylibDraw, RaylibHandle, RaylibThread, Vector2};
 
 mod controls;
-mod state_functions;
+mod state_machine;
+mod states;
 
 use controls::Controls;
+use state_machine::StateMachine;
+use states::PlayerState;
 
 impl Player {
     // animation fps
@@ -68,7 +69,7 @@ pub struct Player {
     // states
     pub controls: Controls,
     pub state: PlayerState,
-    state_machine: StateMachine<PlayerState, Self>,
+    state_machine: StateMachine<PlayerState, Player>,
 }
 
 impl Player {
@@ -126,16 +127,16 @@ impl Player {
             // states
             controls: Controls::default(),
             state: PlayerState::Idle,
-            state_machine: StateMachine::default(),
+            state_machine: StateMachine::init(raylib, thread),
         }
     }
 
     pub fn update(&mut self, raylib: &mut RaylibHandle) {
-        self.update_state(raylib);
+        self.update_movement(raylib);
         self.update_animation(raylib);
     }
 
-    fn update_state(&mut self, raylib: &mut RaylibHandle) {
+    fn update_movement(&mut self, raylib: &mut RaylibHandle) {
         // calculate move direction
         self.move_dir = Vector2 {
             x: (raylib.is_key_down(self.controls.right) as i8
@@ -147,12 +148,21 @@ impl Player {
         // get frame time
         self.frame_time = raylib.get_frame_time_limited();
 
-        // global actions for all states
-        Player::global_update(self, raylib);
+        // reset x velocity on wall collision
+        if self.collider.on_wall() {
+            self.collider.velocity.x = 0.0;
+        }
+
+        // gravity
+        self.collider.velocity.y = if self.collider.on_floor() {
+            0.0 // reset y velocity on floor
+        } else {
+            // add gravity force
+            self.collider.velocity.y + self.gravity * self.frame_time
+        };
 
         // current state update
         if let Some(update_fn) = self.state_machine.update.get(&self.state) {
-            // state action and update
             update_fn(self, raylib);
         }
 
@@ -256,54 +266,4 @@ impl Player {
     pub fn get_center(&self) -> Vector2 {
         self.collider.position + (self.collider.size / 2.0)
     }
-}
-
-/// Player body actions
-impl Player {
-    pub fn ground_friction(&mut self) {
-        // caclulate friction damping
-        let g_friction = self.ground_friction * self.deceleration * self.frame_time;
-        // stop velocity
-        self.collider.velocity.x.lerp(0.0, g_friction);
-        // round small values to 0
-        self.collider.velocity.x.round_zero();
-    }
-
-    pub fn air_friction(&mut self) {
-        if self.move_dir.x == 0.0 {
-            // stop velocity
-            self.collider
-                .velocity
-                .x
-                .lerp(0.0, self.air_friction * self.deceleration * self.frame_time);
-            // round small values to 0
-            self.collider.velocity.x.round_zero();
-        } else {
-            // accelerate velocity to max speed
-            self.collider.velocity.x.lerp(
-                self.move_dir.x * self.max_speed,
-                self.acceleration * self.frame_time,
-            );
-        }
-    }
-
-    pub fn reset_hitbox_from_crouch(&mut self) {
-        // move hitbox by offset of sizes
-        self.collider.position.y -= Player::COLLISION_SIZE.y - Player::COLLISION_SIZE.x;
-        // reset hitbox size
-        self.collider.size = Player::COLLISION_SIZE;
-    }
-}
-
-#[derive(Debug, Hash, PartialEq, Eq, Clone, Copy)]
-pub enum PlayerState {
-    // normal states
-    Idle,
-    Running,
-    Crouching,
-    CrouchWalking,
-    Jumping,
-    Falling,
-    WallSliding,
-    Diving,
 }

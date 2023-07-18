@@ -12,7 +12,6 @@ pub struct GameState {
     window: Window,
     stage: Stage,
     scene_machine: SceneMachine<SceneID>,
-    fullscreen: bool,
     debug: bool,
     paused: bool,
     exit: bool,
@@ -24,7 +23,6 @@ impl GameState {
             window: Window::new(raylib),
             stage: Stage::init(raylib, thread),
             scene_machine: SceneMachine::init(raylib, thread),
-            fullscreen: false,
             debug: false,
             paused: false,
             exit: false,
@@ -79,9 +77,7 @@ impl GameState {
     }
 
     pub fn toggle_fullscreen(&mut self, raylib: &mut RaylibHandle) {
-        // toggle fullscreen
-        self.fullscreen = !self.fullscreen;
-        if self.fullscreen {
+        if raylib.is_window_fullscreen() {
             // save prev window size
             self.window.save_size(raylib);
 
@@ -132,7 +128,7 @@ impl GameState {
     /// Global draw process
     fn global_draw(&self, raylib: &mut RaylibDrawHandle) {
         // window decorations
-        if !self.fullscreen {
+        if !raylib.is_window_fullscreen() {
             self.window.draw(raylib);
         }
 
