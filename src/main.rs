@@ -3,7 +3,6 @@
 
 mod button;
 mod collision;
-mod debug;
 mod gamestate;
 mod math;
 mod paths;
