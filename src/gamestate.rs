@@ -80,6 +80,10 @@ impl GameState {
         self.exit = true;
     }
 
+    pub fn next_scene(&mut self, raylib: &mut RaylibHandle, next_scene: SceneID) {
+        self.scene_machine.next_scene(raylib, next_scene);
+    }
+
     pub fn toggle_pause(&mut self) {
         self.paused = !self.paused;
     }
@@ -111,18 +115,6 @@ impl GameState {
             raylib.set_window_size(self.window.prev_width(), self.window.prev_height());
         }
     }
-
-    pub fn current_scene(&self) -> &SceneID {
-        self.scene_machine.current_scene()
-    }
-
-    pub fn current_scene_debug(&self, raylib: &mut RaylibDrawHandle) {
-        self.scene_machine.debug(raylib);
-    }
-
-    pub fn next_scene(&mut self, raylib: &mut RaylibHandle, next_scene: SceneID) {
-        self.scene_machine.next_scene(raylib, next_scene);
-    }
 }
 
 impl GameState {
@@ -140,19 +132,47 @@ impl GameState {
 
         // hot keys
         if let Some(key) = raylib.get_key_pressed() {
+            // global hot keys
             match key {
                 // toggle pause
                 KeyboardKey::KEY_ESCAPE => self.toggle_pause(),
                 // toggle fullscreen
                 KeyboardKey::KEY_F11 => self.toggle_fullscreen(raylib),
                 // toggle debug
-                KeyboardKey::KEY_F3 => self.toggle_debug(),
+                KeyboardKey::KEY_F3 => {
+                    self.toggle_debug();
+                    println!("debug: {}", self.debug.active);
+                }
                 // scene switchers
                 KeyboardKey::KEY_ONE => self.next_scene(raylib, SceneID::MainMenu),
                 KeyboardKey::KEY_TWO => self.next_scene(raylib, SceneID::World),
                 KeyboardKey::KEY_THREE => self.next_scene(raylib, SceneID::Loading),
                 KeyboardKey::KEY_FOUR => self.next_scene(raylib, SceneID::PauseMenu),
                 _ => {}
+            }
+
+            if self.debug.active {
+                // debug hot keys
+                match key {
+                    // step forward one frame
+                    KeyboardKey::KEY_KP_6 => self.debug.paused = !self.debug.paused,
+                    // toggle step frames
+                    KeyboardKey::KEY_KP_0 => {
+                        self.debug.step_frames = !self.debug.step_frames;
+                        self.debug.paused = false;
+                    }
+                    // increase fps
+                    KeyboardKey::KEY_KP_ADD => {
+                        self.debug.step_fps += 1;
+                        raylib.set_target_fps(self.debug.step_fps);
+                    }
+                    // decrease fps
+                    KeyboardKey::KEY_KP_SUBTRACT => {
+                        self.debug.step_fps -= 1;
+                        raylib.set_target_fps(self.debug.step_fps);
+                    }
+                    _ => {}
+                }
             }
         }
     }
@@ -199,35 +219,11 @@ impl GameState {
                 self.debug.paused = false;
             }
         }
-
-        // hotkeys
-        if let Some(key) = raylib.get_key_pressed() {
-            match key {
-                // step forward one frame
-                KeyboardKey::KEY_KP_6 => self.debug.paused = !self.debug.paused,
-                // toggle step frames
-                KeyboardKey::KEY_KP_0 => {
-                    self.debug.step_frames = !self.debug.step_frames;
-                    self.debug.paused = false;
-                }
-                // increase fps
-                KeyboardKey::KEY_KP_ADD => {
-                    self.debug.step_fps += 1;
-                    raylib.set_target_fps(self.debug.step_fps);
-                }
-                // decrease fps
-                KeyboardKey::KEY_KP_SUBTRACT => {
-                    self.debug.step_fps -= 1;
-                    raylib.set_target_fps(self.debug.step_fps);
-                }
-                _ => {}
-            }
-        }
     }
 
     fn debug_draw(&self, raylib: &mut RaylibDrawHandle) {
         // scene debug overlay
-        self.current_scene_debug(raylib);
+        self.scene_machine.debug(raylib);
 
         let win_width = raylib.get_screen_width();
         let win_height = raylib.get_screen_height();
@@ -248,7 +244,7 @@ impl GameState {
             ),
             (
                 Color::BEIGE,
-                &format!("current scene: {:?}", self.current_scene()),
+                &format!("current scene: {:?}", self.scene_machine.current_scene()),
             ),
         ];
 
