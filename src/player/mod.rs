@@ -3,15 +3,14 @@ use crate::{
     paths::player::advn,
     raylib_plugins::FrameLimiter,
     sprite::{AnimationPlayer2D, AnimationPlayerBuilder},
+    state_machine::StateMachine,
 };
 use raylib::prelude::{RaylibDraw, RaylibHandle, RaylibThread, Vector2};
 
 mod controls;
-mod state_machine;
 mod states;
 
 use controls::Controls;
-use state_machine::StateMachine;
 use states::PlayerState;
 
 impl Player {
@@ -29,6 +28,7 @@ impl Player {
 
     // sprite & collision sizes
     pub const COLLISION_SIZE: Vector2 = Vector2::new(75.0, 106.0);
+    pub const CROUCH_SIZE: f32 = 75.0;
     pub const SPRITE_OFFSET: Vector2 = Vector2::new(50.0, 20.0);
     pub const SPRITE_CR_OFFSET: Vector2 = Vector2::new(50.0, 51.0); // (50, 82)
     pub const SPRITE_SL_SHIFT: f32 = 12.0;
@@ -97,7 +97,7 @@ impl Player {
             dive: 1.5,
 
             // physics
-            collider: collision::Rect::newv(Player::COLLISION_SIZE).set_position(200.0, 100.0),
+            collider: collision::Rect::newv(Player::COLLISION_SIZE).set_position(0.0, -600.0),
             ground_ray: collision::Ray2D::new()
                 .with_position(200.0, 100.0)
                 .with_direction(collision::Ray2D::DOWN * 50.0),
@@ -131,7 +131,7 @@ impl Player {
             // states
             controls: Controls::default(),
             state: PlayerState::Idle,
-            state_machine: StateMachine::init(raylib, thread),
+            state_machine: StateMachine::player(raylib, thread),
         }
     }
 
@@ -154,10 +154,18 @@ impl Player {
 
         // ledge to wall slide transition
         if self.collider.on_floor() && self.move_dir.y == 1.0 {
+            // update ray position
+            self.ground_ray.set_position(
+                self.collider.position.x + (Player::CROUCH_SIZE / 2.0),
+                self.collider.position.y + self.collider.size.y,
+            );
+
             // move collider, force collision resolution to wall
             if !self.ground_ray.is_colliding() {
-                self.collider.position.y += self.collider.size.x / 2.0;
-                println!("ledge to slide");
+                self.collider.position.y += Player::CROUCH_SIZE;
+                self.collider.reset_colliding();
+                self.reset_hitbox_from_crouch();
+                self.transition(PlayerState::WallSliding, raylib);
             }
         }
 
@@ -278,5 +286,14 @@ impl Player {
     /// get player center position
     pub fn get_center(&self) -> Vector2 {
         self.collider.position + (self.collider.size / 2.0)
+    }
+}
+
+impl Player {
+    pub fn reset_hitbox_from_crouch(&mut self) {
+        // move hitbox by offset of sizes
+        self.collider.position.y -= Player::COLLISION_SIZE.y - Player::CROUCH_SIZE;
+        // reset hitbox size
+        self.collider.size = Player::COLLISION_SIZE;
     }
 }

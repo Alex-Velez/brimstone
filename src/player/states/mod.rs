@@ -1,4 +1,4 @@
-use super::{state_machine::StateMachine, Player};
+use crate::{player::Player, state_machine::StateMachine};
 use raylib::prelude::{RaylibHandle, RaylibThread};
 
 mod crouch_walking;
@@ -23,9 +23,9 @@ pub enum PlayerState {
     Diving,
 }
 
-/// Default configuration for states
+/// Configuration for player states
 impl StateMachine<PlayerState, Player> {
-    pub fn init(raylib: &mut RaylibHandle, thread: &RaylibThread) -> Self {
+    pub fn player(raylib: &mut RaylibHandle, thread: &RaylibThread) -> Self {
         // add states to state machine
         let mut machine = StateMachine::default();
         machine.enter.insert(PlayerState::Idle, idle::on_enter);

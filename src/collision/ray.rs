@@ -44,8 +44,6 @@ impl Ray2D {
     }
 
     pub fn is_colliding(&self) -> bool {
-        // self.position.distance_to(self.contact_point)
-        //     <= self.position.distance_to(self.position + self.direction)
         self.colliding > 0
     }
 

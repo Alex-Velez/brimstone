@@ -21,10 +21,6 @@ pub fn update(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
 }
 
 fn check_next_state(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
-    if !player.collider.on_wall() {
-        player.transition(Falling, raylib);
-    }
-
     if player.collider.on_floor() {
         if player.move_dir.x == 0.0 {
             player.transition(Idle, raylib);

@@ -52,11 +52,6 @@ impl Scene for Environment {
                 self.player.collider.collide_rect(floor);
 
                 if self.player.collider.on_floor() {
-                    // update ray position
-                    self.player.ground_ray.set_position(
-                        self.player.collider.position.x + (self.player.collider.size.x / 2.0),
-                        self.player.collider.position.y + self.player.collider.size.y,
-                    );
                     // check ray collision
                     self.player.ground_ray.check_rect(floor);
                 }

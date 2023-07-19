@@ -2,11 +2,11 @@ use super::{Player, PlayerState::*};
 use crate::math::Math;
 
 pub fn on_enter(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
-    if player.collider.size.y != Player::COLLISION_SIZE.x {
+    if player.collider.size.y != Player::CROUCH_SIZE {
         // change hitbox height
-        player.collider.size.y = Player::COLLISION_SIZE.x;
+        player.collider.size.y = Player::CROUCH_SIZE;
         // move hitbox by offset of sizes
-        player.collider.position.y += Player::COLLISION_SIZE.y - Player::COLLISION_SIZE.x;
+        player.collider.position.y += Player::COLLISION_SIZE.y - Player::CROUCH_SIZE;
     }
 }
 
@@ -28,20 +28,13 @@ fn check_next_state(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
     if player.move_dir.x != 0.0 {
         player.transition(CrouchWalking, raylib);
     } else if !raylib.is_key_down(player.controls.down) {
-        reset_hitbox_from_crouch(player);
+        player.reset_hitbox_from_crouch();
         player.transition(Idle, raylib);
     } else if raylib.is_key_down(player.controls.up) {
-        reset_hitbox_from_crouch(player);
+        player.reset_hitbox_from_crouch();
         player.transition(Jumping, raylib);
     } else if player.collider.on_wall() && !player.collider.on_floor() {
-        reset_hitbox_from_crouch(player);
+        player.reset_hitbox_from_crouch();
         player.transition(WallSliding, raylib);
     }
-}
-
-pub fn reset_hitbox_from_crouch(player: &mut Player) {
-    // move hitbox by offset of sizes
-    player.collider.position.y -= Player::COLLISION_SIZE.y - Player::COLLISION_SIZE.x;
-    // reset hitbox size
-    player.collider.size = Player::COLLISION_SIZE;
 }
