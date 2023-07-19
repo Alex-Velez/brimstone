@@ -45,11 +45,16 @@ impl GameState {
     }
 
     fn update(&mut self, raylib: &mut RaylibHandle) {
-        // debug utilitizes
-        self.debug_update(raylib);
+        // toggle debug
+        if raylib.is_key_pressed(raylib::prelude::KeyboardKey::KEY_F3) {
+            self.toggle_debug();
+        }
 
-        // fps checker
-        if !self.debug.step_frames {
+        // debug utilitizes
+        if self.debug.active {
+            self.debug_update(raylib);
+        } else {
+            // fps checker
             if raylib.get_fps() < 15 && raylib.get_time() > 2.0 {
                 println!("{}: FPS too low for engine!", window::DEFAULT_TITLE);
                 self.exit();

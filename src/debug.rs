@@ -1,5 +1,5 @@
 use crate::{gamestate::GameState, raylib_plugins::FrameLimiter, scenes::SceneID};
-use raylib::prelude::{Color, KeyboardKey, RaylibDraw, RaylibDrawHandle, RaylibHandle};
+use raylib::prelude::{Color, KeyboardKey, RaylibDraw, RaylibDrawHandle, RaylibHandle, Rectangle};
 
 pub struct DebugTools {
     pub active: bool,
@@ -11,7 +11,7 @@ pub struct DebugTools {
 impl Default for DebugTools {
     fn default() -> Self {
         Self {
-            active: true,
+            active: false,
             step_frames: false,
             paused: false,
             step_fps: 30,
@@ -50,8 +50,6 @@ impl DebugUtil for GameState {
                 }
                 // toggle pause
                 KeyboardKey::KEY_ESCAPE => self.toggle_pause(),
-                // toggle debug
-                KeyboardKey::KEY_F3 => self.toggle_debug(),
                 // toggle fullscreen
                 KeyboardKey::KEY_F11 => self.toggle_fullscreen(raylib),
                 // increase fps
@@ -78,6 +76,9 @@ impl DebugUtil for GameState {
         // scene debug overlay
         self.current_scene_debug(raylib);
 
+        let win_width = raylib.get_screen_width();
+        let win_height = raylib.get_screen_height();
+
         // debug info / text color
         let debug_info = [
             (
@@ -102,6 +103,22 @@ impl DebugUtil for GameState {
         for (i, val) in debug_info.iter().enumerate() {
             let y_pos = 10 + (i as i32 * 20);
             raylib.draw_text(val.1, 10, y_pos, 20, val.0);
+        }
+
+        // debug window outline
+        raylib.draw_rectangle_lines_ex(
+            Rectangle::new(0.0, 0.0, win_width as f32, win_height as f32),
+            5,
+            Color::RED,
+        );
+
+        // step frame outline
+        if self.debug.step_frames {
+            raylib.draw_rectangle_lines_ex(
+                Rectangle::new(0.0, 0.0, win_width as f32, win_height as f32),
+                5,
+                Color::YELLOW,
+            );
         }
     }
 }
