@@ -1,5 +1,6 @@
 use crate::{
-    collision, math,
+    collision::{self, Rect},
+    math,
     paths::player::advn,
     raylib_plugins::FrameLimiter,
     sprite::{AnimationPlayer2D, AnimationPlayerBuilder},
@@ -11,7 +12,7 @@ mod controls;
 mod states;
 
 use controls::Controls;
-use states::PlayerState;
+pub use states::PlayerState;
 
 impl Player {
     // animation fps
@@ -152,23 +153,6 @@ impl Player {
         // get frame time
         self.frame_time = raylib.get_frame_time_limited();
 
-        // ledge to wall slide transition
-        if self.collider.on_floor() && self.move_dir.y == 1.0 {
-            // update ray position
-            self.ground_ray.set_position(
-                self.collider.position.x + (Player::CROUCH_SIZE / 2.0),
-                self.collider.position.y + self.collider.size.y,
-            );
-
-            // move collider, force collision resolution to wall
-            if !self.ground_ray.is_colliding() {
-                self.collider.position.y += Player::CROUCH_SIZE;
-                self.collider.reset_colliding();
-                self.reset_hitbox_from_crouch();
-                self.transition(PlayerState::WallSliding, raylib);
-            }
-        }
-
         // reset x velocity on wall collision
         if self.collider.on_wall() {
             self.collider.velocity.x = 0.0;
@@ -289,11 +273,52 @@ impl Player {
     }
 }
 
+/// Player physics functions
 impl Player {
     pub fn reset_hitbox_from_crouch(&mut self) {
         // move hitbox by offset of sizes
         self.collider.position.y -= Player::COLLISION_SIZE.y - Player::CROUCH_SIZE;
         // reset hitbox size
         self.collider.size = Player::COLLISION_SIZE;
+    }
+
+    pub fn reset_colliding(&mut self) {
+        // reset player collisons
+        self.collider.reset_colliding();
+        self.ground_ray.reset_colliding();
+    }
+
+    pub fn collide_rects(&mut self, raylib: &mut RaylibHandle, floors: &mut Vec<Rect>) {
+        // ground ray check conditions
+        let mut ray_conditions = false;
+
+        // collide player & floors
+        for floor in floors {
+            if self.collider.collide_rect(floor)
+                && self.collider.on_floor()
+                && self.move_dir.y == 1.0
+            {
+                // allows ray check
+                ray_conditions = true;
+
+                // update ray position
+                self.ground_ray.set_position(
+                    self.collider.position.x + (Player::CROUCH_SIZE / 2.0),
+                    self.collider.position.y + self.collider.size.y,
+                );
+
+                // check ray collision
+                self.ground_ray.check_rect(floor);
+            };
+        }
+
+        // player ledge to wall slide transition
+        if !self.ground_ray.is_colliding() && ray_conditions {
+            // move collider, force collision resolution to wall
+            self.collider.position.y += Player::CROUCH_SIZE / 2.0;
+            self.collider.reset_colliding();
+            self.reset_hitbox_from_crouch();
+            self.transition(crate::player::PlayerState::WallSliding, raylib);
+        }
     }
 }

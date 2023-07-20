@@ -23,8 +23,8 @@ impl Environment {
             player: Player::new(raylib, thread),
             floors: vec![
                 collision::Rect::new(2000.0, 100.0).set_position_center(0.0, 200.0),
-                collision::Rect::new(225.0, 1000.0).set_position_center(0.0, 100.0),
-                collision::Rect::new(100.0, 2000.0).set_position_center(500.0, 100.0),
+                collision::Rect::new(100.0, 100.0).set_position_center(0.0, 100.0),
+                collision::Rect::new(100.0, 500.0).set_position_center(500.0, 100.0),
             ],
         }
     }
@@ -43,19 +43,11 @@ impl Scene for Environment {
 
         // collision
         {
-            // reset player collisons
-            self.player.collider.reset_colliding();
-            self.player.ground_ray.reset_colliding();
+            // reset player collisions
+            self.player.reset_colliding();
 
-            // collide player & floors
-            for floor in &mut self.floors {
-                self.player.collider.collide_rect(floor);
-
-                if self.player.collider.on_floor() {
-                    // check ray collision
-                    self.player.ground_ray.check_rect(floor);
-                }
-            }
+            // player vs floor
+            self.player.collide_rects(raylib, &mut self.floors);
         }
     }
 

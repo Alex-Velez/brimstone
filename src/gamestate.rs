@@ -139,10 +139,7 @@ impl GameState {
                 // toggle fullscreen
                 KeyboardKey::KEY_F11 => self.toggle_fullscreen(raylib),
                 // toggle debug
-                KeyboardKey::KEY_F3 => {
-                    self.toggle_debug();
-                    println!("debug: {}", self.debug.active);
-                }
+                KeyboardKey::KEY_F3 => self.toggle_debug(),
                 // scene switchers
                 KeyboardKey::KEY_ONE => self.next_scene(raylib, SceneID::MainMenu),
                 KeyboardKey::KEY_TWO => self.next_scene(raylib, SceneID::World),
