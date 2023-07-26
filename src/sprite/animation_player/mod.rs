@@ -1,6 +1,14 @@
-use crate::{raylib_plugins::Texture2DPlugin, sprite::AnimatedSprite2D};
-use raylib::prelude::{RaylibDraw, Rectangle, Texture2D, Vector2};
+use crate::{
+    paths::player::advn,
+    player::{Player, PlayerState},
+    sprite::AnimatedSprite2D,
+};
+use raylib::prelude::{RaylibDraw, RaylibHandle, RaylibThread, Rectangle, Texture2D, Vector2};
 use std::{collections::HashMap, hash::Hash};
+
+mod builder;
+
+pub use builder::AnimationPlayerBuilder;
 
 pub struct AnimationPlayer2D<T> {
     animations: HashMap<T, AnimatedSprite2D>,
@@ -140,58 +148,25 @@ impl<T: Hash + Eq> AnimationPlayer2D<T> {
     }
 }
 
-use raylib::prelude::{RaylibHandle, RaylibThread};
+impl AnimationPlayer2D<PlayerState> {
+    pub fn player(raylib: &mut RaylibHandle, thread: &RaylibThread) -> Self {
+        // load and insert textures into animation player
+        let mut animation_player = AnimationPlayerBuilder::<PlayerState>::new()
+            .add_animation(PlayerState::Idle, advn::IDLE, 4, Player::FPS_IDLE)
+            // .add_animation(PlayerState::Walking, advn::WALK, 6, Player::FPS_WALK)
+            .add_animation(PlayerState::Running, advn::RUN, 6, Player::FPS_RUN)
+            .add_animation(PlayerState::Jumping, advn::JUMP, 4, Player::FPS_JUMP)
+            .add_animation(PlayerState::Falling, advn::FALL, 2, Player::FPS_FALL)
+            .add_animation(PlayerState::Crouching, advn::CRID, 4, Player::FPS_CRID)
+            .add_animation(PlayerState::CrouchWalking, advn::CRWK, 6, Player::FPS_CRWK)
+            .add_animation(PlayerState::Diving, advn::FALL, 2, Player::FPS_DIVE)
+            .add_animation(PlayerState::WallSliding, advn::WSLD, 2, Player::FPS_WSLD)
+            .build(raylib, thread);
 
-pub struct AnimationPlayerBuilder<T> {
-    animation_player: AnimationPlayer2D<T>,
-    states: Vec<T>,
-    texture_strip_paths: Vec<String>,
-    frame_amounts: Vec<u32>,
-    fps_values: Vec<f32>,
-}
+        // resize all animations
+        animation_player.set_scale(Player::SPRITE_SCALE);
+        animation_player.set_offset(Player::SPRITE_OFFSET);
 
-impl<T: Hash + Eq> AnimationPlayerBuilder<T> {
-    pub fn new() -> Self {
-        Self {
-            animation_player: AnimationPlayer2D::new(),
-            states: Vec::new(),
-            texture_strip_paths: Vec::new(),
-            frame_amounts: Vec::new(),
-            fps_values: Vec::new(),
-        }
-    }
-
-    /// Insert new animations
-    pub fn add_animation(
-        mut self,
-        state: T,
-        texture_strip_path: &str,
-        frames: u32,
-        fps: f32,
-    ) -> Self {
-        self.states.push(state);
-        self.texture_strip_paths.push(texture_strip_path.into());
-        self.frame_amounts.push(frames);
-        self.fps_values.push(fps);
-        self
-    }
-
-    /// Build AnimationPlayer with all added animations
-    pub fn build(
-        mut self,
-        raylib: &mut RaylibHandle,
-        thread: &RaylibThread,
-    ) -> AnimationPlayer2D<T> {
-        for i in 0..self.states.len() {
-            let texture_strip =
-                Texture2D::from_path(raylib, thread, &self.texture_strip_paths.remove(0));
-            self.animation_player = self.animation_player.add_animation(
-                self.states.remove(0),
-                texture_strip,
-                self.frame_amounts.remove(0),
-                self.fps_values.remove(0),
-            );
-        }
-        self.animation_player
+        animation_player
     }
 }

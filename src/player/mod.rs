@@ -1,9 +1,5 @@
 use crate::{
-    collision::{self, Rect},
-    math,
-    paths::player::advn,
-    raylib_plugins::FrameLimiter,
-    sprite::{AnimationPlayer2D, AnimationPlayerBuilder},
+    collision, math, raylib_plugins::FrameLimiter, sprite::AnimationPlayer2D,
     state_machine::StateMachine,
 };
 use raylib::prelude::{RaylibDraw, RaylibHandle, RaylibThread, Vector2};
@@ -108,26 +104,7 @@ impl Player {
             air_friction: 0.25,
 
             // drawing
-            animation_player: {
-                // load and insert textures into animation player
-                let mut animation_player = AnimationPlayerBuilder::<PlayerState>::new()
-                    .add_animation(PlayerState::Idle, advn::IDLE, 4, Player::FPS_IDLE)
-                    // .add_animation(PlayerState::Walking, advn::WALK, 6, Player::FPS_WALK)
-                    .add_animation(PlayerState::Running, advn::RUN, 6, Player::FPS_RUN)
-                    .add_animation(PlayerState::Jumping, advn::JUMP, 4, Player::FPS_JUMP)
-                    .add_animation(PlayerState::Falling, advn::FALL, 2, Player::FPS_FALL)
-                    .add_animation(PlayerState::Crouching, advn::CRID, 4, Player::FPS_CRID)
-                    .add_animation(PlayerState::CrouchWalking, advn::CRWK, 6, Player::FPS_CRWK)
-                    .add_animation(PlayerState::Diving, advn::FALL, 2, Player::FPS_DIVE)
-                    .add_animation(PlayerState::WallSliding, advn::WSLD, 2, Player::FPS_WSLD)
-                    .build(raylib, thread);
-
-                // resize all animations
-                animation_player.set_scale(Player::SPRITE_SCALE);
-                animation_player.set_offset(Player::SPRITE_OFFSET);
-
-                animation_player
-            },
+            animation_player: AnimationPlayer2D::player(raylib, thread),
 
             // states
             controls: Controls::default(),
@@ -288,7 +265,7 @@ impl Player {
         self.ground_ray.reset_colliding();
     }
 
-    pub fn collide_rects(&mut self, raylib: &mut RaylibHandle, floors: &mut Vec<Rect>) {
+    pub fn collide_rects(&mut self, raylib: &mut RaylibHandle, floors: &mut Vec<collision::Rect>) {
         // ground ray check conditions
         let mut ray_conditions = false;
 

@@ -35,3 +35,10 @@ pub fn lerp(start: f32, end: f32, t: f32) -> f32 {
     // Precise method
     // (1.0 - t) * v0 + t * v1
 }
+
+// pub fn elo(mut winner: f32, mut loser: f32) {
+//     let diff: f32 = (winner - loser).powi(2);
+//     let score = 1.0 / (diff + 1.0);
+//     winner += score;
+//     loser -= score;
+// }
