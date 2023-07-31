@@ -3,7 +3,7 @@ use crate::math::Math;
 
 pub fn on_enter(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
     // reset jump animation
-    player.animation_player.reset_frame(Jumping);
+    player.animation_player.reset_frame(&Jumping);
 
     // add jump force
     player.collider.velocity.y -= player.jump;

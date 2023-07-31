@@ -3,133 +3,6 @@ use raylib::prelude::{
     Color, RaylibDraw, RaylibHandle, RaylibThread, Rectangle, Texture2D, Vector2,
 };
 
-// pub struct AnimatedSprite2D {
-//     pub rect: Rectangle,
-//     pub rotation: f32,
-//     pub tint: Color,
-//     pub offset: Vector2,
-//     pub fps_timer: Timer,
-//     texture_strip: Texture2D,
-//     source_rect: Rectangle,
-//     step_size: f32,
-// }
-
-// impl AnimatedSprite2D {
-//     /// Create animated 2D sprite from a loaded texture strip
-//     pub fn from_texture_strip(texture_strip: Texture2D, frames: u32, fps: f32) -> Self {
-//         let step_size = texture_strip.width as f32 / frames as f32;
-//         let source_rect = Rectangle::new(0.0, 0.0, step_size, texture_strip.height as f32);
-
-//         Self {
-//             rect: source_rect,
-//             rotation: 0.0,
-//             tint: Color::WHITE,
-//             offset: Vector2::new(0.0, 0.0),
-//             fps_timer: Timer::new(std::time::Duration::from_secs_f32(1.0 / fps)),
-//             texture_strip,
-//             source_rect,
-//             step_size,
-//         }
-//     }
-
-//     /// Create animated 2D sprite with a texture strip
-//     pub fn from_path(
-//         raylib: &mut RaylibHandle,
-//         thread: &RaylibThread,
-//         path: &str,
-//         frames: u32,
-//         fps: f32,
-//     ) -> Self {
-//         Self::from_texture_strip(Texture2D::from_path(raylib, thread, path), frames, fps)
-//     }
-
-//     pub fn draw(&self, raylib: &mut impl RaylibDraw) {
-//         raylib.draw_texture_pro(
-//             &self.texture_strip,
-//             self.source_rect,
-//             self.rect,
-//             self.offset,
-//             self.rotation,
-//             self.tint,
-//         );
-//     }
-
-//     pub fn next_frame(&mut self) {
-//         if self.fps_timer.is_finished() {
-//             self.source_rect.x += self.step_size;
-//             self.fps_timer.start();
-//         }
-//     }
-
-//     pub fn set_fps(&mut self, fps: f32) {
-//         self.fps_timer.wait_time = std::time::Duration::from_secs_f32(1.0 / fps);
-//     }
-// }
-
-// impl AnimatedSprite2D {
-//     /// Set sprite position
-//     pub fn set_position(&mut self, position: Vector2) {
-//         self.rect.x = position.x;
-//         self.rect.y = position.y;
-//     }
-
-//     /// Resize sprite
-//     pub fn set_size(&mut self, size: Vector2) {
-//         self.rect.width = size.x;
-//         self.rect.height = size.y;
-//     }
-
-//     /// Set sprite position and return itself
-//     pub fn offset(mut self, offset: Vector2) -> Self {
-//         self.offset = offset;
-//         self
-//     }
-
-//     /// resize sprite and return itself
-//     pub fn size(mut self, size: Vector2) -> Self {
-//         self.rect.width = size.x;
-//         self.rect.height = size.y;
-//         self
-//     }
-
-//     /// Scale sprite by multiplier and return itself
-//     pub fn scale(mut self, scale: f32) -> Self {
-//         self.rect.width = self.source_rect.width * scale;
-//         self.rect.height = self.source_rect.height * scale;
-//         self
-//     }
-
-//     /// Flip sprite horizontally
-//     pub fn flip_h(&mut self) {
-//         self.source_rect.width *= -1.0;
-//     }
-
-//     /// Flip sprite vertically
-//     pub fn flip_v(&mut self) {
-//         self.source_rect.height *= -1.0;
-//     }
-
-//     /// Face sprite right
-//     pub fn face_right(&mut self) {
-//         self.source_rect.width = self.source_rect.width.abs();
-//     }
-
-//     /// Face sprite left
-//     pub fn face_left(&mut self) {
-//         self.source_rect.width = -self.source_rect.width.abs();
-//     }
-
-//     /// Face sprite up
-//     pub fn face_up(&mut self) {
-//         self.source_rect.height = self.source_rect.height.abs();
-//     }
-
-//     /// Face sprite down
-//     pub fn face_down(&mut self) {
-//         self.source_rect.height = -self.source_rect.height.abs();
-//     }
-// }
-
 pub struct AnimatedSprite2D {
     pub rect: Rectangle,
     pub tint: Color,
@@ -286,6 +159,9 @@ impl AnimatedSprite2D {
     /// meant for values of 1 & -1, other
     /// values will stretch the sprite
     pub fn face_x(&mut self, direction: f32) {
+        if direction == 0.0 {
+            return;
+        }
         assert!(direction == 1.0 || direction == -1.0);
         self.source_rect.width = direction * self.source_rect.width.abs();
     }
@@ -294,6 +170,9 @@ impl AnimatedSprite2D {
     /// meant for values of 1 & -1, other
     /// values will stretch the sprite
     pub fn face_y(&mut self, direction: f32) {
+        if direction == 0.0 {
+            return;
+        }
         assert!(direction == 1.0 || direction == -1.0);
         self.source_rect.height = direction * self.source_rect.height.abs();
     }

@@ -1,6 +1,5 @@
 use crate::{
-    collision, math, raylib_plugins::FrameLimiter, sprite::AnimationPlayer2D,
-    state_machine::StateMachine,
+    collision, raylib_plugins::FrameLimiter, sprite::AnimationPlayer2D, state_machine::StateMachine,
 };
 use raylib::prelude::{RaylibDraw, RaylibHandle, RaylibThread, Vector2};
 
@@ -30,6 +29,7 @@ impl Player {
     pub const SPRITE_CR_OFFSET: Vector2 = Vector2::new(50.0, 51.0); // (50, 82)
     pub const SPRITE_SL_SHIFT: f32 = 12.0;
     pub const SPRITE_SCALE: f32 = 3.5;
+    pub const SPRITE_SIZE: Vector2 = Vector2::new(50.0, 37.0);
 }
 
 pub struct Player {
@@ -94,7 +94,7 @@ impl Player {
             dive: 1.5,
 
             // physics
-            collider: collision::Rect::newv(Player::COLLISION_SIZE).set_position(0.0, -600.0),
+            collider: collision::Rect::newv(Player::COLLISION_SIZE).set_position(0.0, -100.0),
             ground_ray: collision::Ray2D::new()
                 .with_position(200.0, 100.0)
                 .with_direction(collision::Ray2D::DOWN * 50.0),
@@ -114,11 +114,6 @@ impl Player {
     }
 
     pub fn update(&mut self, raylib: &mut RaylibHandle) {
-        self.update_movement(raylib);
-        self.update_animation(raylib);
-    }
-
-    fn update_movement(&mut self, raylib: &mut RaylibHandle) {
         // calculate move direction
         self.move_dir = Vector2 {
             x: (raylib.is_key_down(self.controls.right) as i8
@@ -129,6 +124,9 @@ impl Player {
 
         // get frame time
         self.frame_time = raylib.get_frame_time_limited();
+
+        // face direction
+        self.animation_player.face_x(self.move_dir.x);
 
         // reset x velocity on wall collision
         if self.collider.on_wall() {
@@ -154,73 +152,10 @@ impl Player {
 
         // move player with velocity
         self.collider.position += self.collider.velocity * self.frame_time;
-    }
 
-    fn update_animation(&mut self, raylib: &mut RaylibHandle) {
-        // update idle animation speed
-        if self.state == PlayerState::Idle {
-            if let Some(sprite) = self.animation_player.get_animation_mut(&PlayerState::Idle) {
-                let idle_fps_rate = math::lerp(
-                    Player::FPS_IDLE_TIRED,
-                    Player::FPS_IDLE,
-                    self.stamina / self.max_stamina,
-                );
-                sprite.set_fps(idle_fps_rate);
-            }
-        }
-
-        // update sprite
-        if let Some(sprite) = self.animation_player.get_animation_mut(&self.state) {
-            // update sprite position
-            sprite.set_position(self.collider.position);
-
-            // face direction
-            match self.move_dir.x as i32 {
-                1 => sprite.face_right(),
-                -1 => sprite.face_left(),
-                _ => match self.collider.velocity.x {
-                    x if x > 0.0 => sprite.face_right(),
-                    x if x < 0.0 => sprite.face_left(),
-                    _ => {
-                        if self.collider.on_wall_right() {
-                            sprite.face_left();
-                        } else if self.collider.on_wall_left() {
-                            sprite.face_right();
-                        }
-                    }
-                },
-            }
-
-            // change sprite with state
-            match self.state {
-                PlayerState::Crouching | PlayerState::CrouchWalking => {
-                    // change sprite offset
-                    sprite.set_offset(Player::SPRITE_CR_OFFSET);
-                }
-                PlayerState::WallSliding => {
-                    // face direction
-                    if self.collider.on_wall_right() {
-                        sprite.face_right();
-                    } else if self.collider.on_wall_left() {
-                        sprite.face_left();
-                    }
-
-                    // change sprite offset
-                    sprite.set_offset(Vector2 {
-                        x: Player::SPRITE_OFFSET.x
-                            - (self.collider.colliding.x * Player::SPRITE_SL_SHIFT),
-                        y: Player::SPRITE_OFFSET.y,
-                    });
-                }
-                _ => {
-                    // reset offset
-                    sprite.set_offset(Player::SPRITE_OFFSET);
-                }
-            }
-
-            // play sprite next frame
-            sprite.next_frame();
-        }
+        // update animation
+        self.animation_player.set_position(self.collider.position);
+        self.animation_player.next_frame(&self.state);
     }
 
     /// Transition between states
@@ -241,6 +176,7 @@ impl Player {
 
     pub fn draw(&self, raylib: &mut impl RaylibDraw) {
         // sprite
+        // self.animation_player.draw(&self.state, raylib);
         self.animation_player.draw(&self.state, raylib);
     }
 
@@ -295,7 +231,7 @@ impl Player {
             self.collider.position.y += Player::CROUCH_SIZE / 2.0;
             self.collider.reset_colliding();
             self.reset_hitbox_from_crouch();
-            self.transition(crate::player::PlayerState::WallSliding, raylib);
+            self.transition(PlayerState::WallSliding, raylib);
         }
     }
 }

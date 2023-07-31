@@ -3,11 +3,6 @@ use raylib::prelude::{
     Color, RaylibDraw, RaylibHandle, RaylibThread, Rectangle, Texture2D, Vector2,
 };
 
-/*
-   * Split Rect into Position & Size
-
-*/
-
 pub struct Sprite2D {
     pub rect: Rectangle,
     pub rotation: f32,

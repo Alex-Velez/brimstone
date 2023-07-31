@@ -22,6 +22,7 @@ pub mod player {
     }
 
     pub mod advn {
+        pub const ATLAS: &str = "resources/player/adventurer/SpriteSheetOrdered.png";
         pub const IDLE: &str = "resources/player/adventurer/idle.png";
         pub const WALK: &str = "resources/player/adventurer/walk.png";
         pub const RUN: &str = "resources/player/adventurer/run.png";

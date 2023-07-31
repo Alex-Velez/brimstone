@@ -1,9 +1,15 @@
 use super::{Player, PlayerState::*};
 use crate::math::Math;
 
-pub fn on_enter(player: &mut Player, raylib: &mut raylib::RaylibHandle) {}
+pub fn on_enter(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
+    // update sprite
+    player.animation_player.set_offset(Player::SPRITE_CR_OFFSET);
+}
 
-pub fn on_exit(player: &mut Player, raylib: &mut raylib::RaylibHandle) {}
+pub fn on_exit(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
+    // update sprite
+    player.animation_player.set_offset(Player::SPRITE_OFFSET);
+}
 
 pub fn update(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
     // accelerate velocity to crouch walk speed
