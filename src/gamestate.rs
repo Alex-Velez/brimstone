@@ -94,6 +94,12 @@ impl GameState {
 
     pub fn toggle_fullscreen(&mut self, raylib: &mut RaylibHandle) {
         if raylib.is_window_fullscreen() {
+            // toggle fullscreen mode
+            raylib.toggle_fullscreen();
+
+            // set window size to prev size
+            raylib.set_window_size(self.window.prev_width(), self.window.prev_height());
+        } else {
             // save prev window size
             self.window.save_size(raylib);
 
@@ -107,12 +113,6 @@ impl GameState {
 
             // toggle fullscreen mode
             raylib.toggle_fullscreen();
-        } else {
-            // toggle fullscreen mode
-            raylib.toggle_fullscreen();
-
-            // set window size to prev size
-            raylib.set_window_size(self.window.prev_width(), self.window.prev_height());
         }
     }
 }
