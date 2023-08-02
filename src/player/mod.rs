@@ -1,13 +1,19 @@
 use crate::{
-    collision, raylib_plugins::FrameLimiter, sprite::AnimationPlayer2D, state_machine::StateMachine,
+    collision,
+    raylib_plugins::FrameLimiter,
+    sprite::{AnimationPlayer2D, SpriteTransform},
+    state_machine::StateMachine,
 };
 use raylib::prelude::{RaylibDraw, RaylibHandle, RaylibThread, Vector2};
 
 mod controls;
+mod default;
 mod states;
 
 use controls::Controls;
 pub use states::PlayerState;
+
+use default::PlayerDefault;
 
 impl Player {
     // animation fps
@@ -104,12 +110,12 @@ impl Player {
             air_friction: 0.25,
 
             // drawing
-            animation_player: AnimationPlayer2D::player(raylib, thread),
+            animation_player: AnimationPlayer2D::player_default(raylib, thread),
 
             // states
             controls: Controls::default(),
             state: PlayerState::Idle,
-            state_machine: StateMachine::player(raylib, thread),
+            state_machine: StateMachine::player_default(raylib, thread),
         }
     }
 
@@ -176,7 +182,6 @@ impl Player {
 
     pub fn draw(&self, raylib: &mut impl RaylibDraw) {
         // sprite
-        // self.animation_player.draw(&self.state, raylib);
         self.animation_player.draw(&self.state, raylib);
     }
 

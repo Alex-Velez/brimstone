@@ -1,12 +1,14 @@
-use crate::{paths, scene_machine::Scene, sprite::Sprite2D};
-use raylib::prelude::{
-    Color, RaylibDraw, RaylibDrawHandle, RaylibHandle, RaylibThread, Rectangle, Vector2,
+use crate::{
+    paths,
+    scene_machine::Scene,
+    sprite::{Sprite2D, SpriteTransform},
 };
+use raylib::prelude::{Color, RaylibDraw, RaylibDrawHandle, RaylibHandle, RaylibThread};
 
 /// Loading constant values
 const BACKGROUND_TOP_COLOR: Color = Color::MAROON;
 const BACKGROUND_BOTTOM_COLOR: Color = Color::new(10, 10, 10, 255);
-const LOADING_ICON_ROTATION_SPEED: f64 = 360.0;
+const LOADING_ICON_ROTATION_SPEED: f32 = 360.0;
 
 pub struct Environment {
     icon: Sprite2D,
@@ -34,19 +36,18 @@ impl Scene for Environment {
         let win_height = raylib.get_screen_height() as f32;
 
         // rotate loading sprite
-        self.icon.rotation = (raylib.get_time() * LOADING_ICON_ROTATION_SPEED) as f32;
+        let time = raylib.get_time() as f32;
+        self.icon.set_rotation(time * LOADING_ICON_ROTATION_SPEED);
 
         // update sprite size and position
         let icon_size = win_width / 16.0;
-        self.icon.rect = Rectangle {
-            x: self.icon.rect.width,
-            y: win_height - self.icon.rect.height,
-            width: icon_size,
-            height: icon_size,
-        };
+        self.icon
+            .set_position_xy(self.icon.width(), win_height - self.icon.height());
+        self.icon.set_size(icon_size, icon_size);
 
         // set offset
-        self.icon.offset = Vector2::new(self.icon.rect.width / 2.0, self.icon.rect.width / 2.0);
+        self.icon
+            .set_offset_xy(self.icon.half_width(), self.icon.half_width());
     }
 
     fn draw(&self, raylib: &mut RaylibDrawHandle) {

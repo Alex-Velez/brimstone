@@ -1,7 +1,7 @@
 use crate::{
     paths::main_menu,
     scene_machine::Scene,
-    sprite::{ParallaxLayer2D, Sprite2D},
+    sprite::{ParallaxLayer2D, Sprite2D, SpriteTransform},
 };
 use raylib::prelude::{Color, RaylibDraw, RaylibDrawHandle, RaylibHandle, RaylibThread, Vector2};
 
@@ -60,10 +60,9 @@ impl Scene for Environment {
             self.parallax_mid.maximize_to_screen(raylib);
             self.parallax_close.maximize_to_screen(raylib);
             // resize logo
-            self.logo
-                .set_size(Vector2::new(win_width / 2.0, win_height / 8.0));
+            self.logo.set_size(win_width / 2.0, win_height / 8.0);
             // center logo position to center of screen
-            self.logo.rect.x = (win_width / 2.0) - (self.logo.rect.width / 2.0);
+            self.logo.set_x((win_width / 2.0) - self.logo.half_width());
         }
     }
 
@@ -78,16 +77,15 @@ impl Scene for Environment {
             self.parallax_mid.maximize_to_screen(raylib);
             self.parallax_close.maximize_to_screen(raylib);
             // resize logo
-            self.logo
-                .set_size(Vector2::new(win_width / 2.0, win_height / 8.0));
+            self.logo.set_size(win_width / 2.0, win_height / 8.0);
             // center logo position to center of screen
-            self.logo.rect.x = (win_width / 2.0) - (self.logo.rect.width / 2.0);
+            self.logo.set_x((win_width / 2.0) - self.logo.half_width());
         }
 
         // animate logo
         let rl_time = raylib.get_time() as f32;
-        self.logo.rotation = rl_time.sin() * 2.0;
-        self.logo.rect.y = (win_height / 12.0) + (rl_time.cos() * 5.0);
+        self.logo.set_rotation(rl_time.sin() * 2.0);
+        self.logo.set_y((win_height / 12.0) + (rl_time.cos() * 5.0));
 
         // update parallax background
         self.parallax_far.update(raylib);

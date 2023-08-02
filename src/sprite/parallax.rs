@@ -4,11 +4,11 @@ use raylib::prelude::{
 };
 
 pub struct ParallaxLayer2D {
-    pub rect: Rectangle,
-    pub rotation: f32,
     pub speed: Vector2,
     pub tint: Color,
+    pub rotation: f32,
     texture: Texture2D,
+    rect: Rectangle,
     source_rect: Rectangle,
 }
 

@@ -1,23 +1,17 @@
-use crate::{
-    paths::player::advn,
-    player::{Player, PlayerState},
-    timer::Timer,
-};
-use raylib::prelude::{
-    Color, RaylibDraw, RaylibHandle, RaylibThread, Rectangle, Texture2D, Vector2,
-};
+use super::{SpriteTransform, Timer};
+use raylib::prelude::{Color, RaylibDraw, Rectangle, Texture2D, Vector2};
 use std::{collections::HashMap, hash::Hash};
 
 mod builder;
 
-use builder::AnimationMachineBuilder;
+pub use builder::AnimationMachineBuilder;
 
 pub struct AnimationPlayer2D<T> {
-    pub rect: Rectangle,
-    pub tint: Color,
-    pub rotation: f32,
-    pub offset: Vector2,
     animations: HashMap<T, AnimationStrip>,
+    tint: Color,
+    rotation: f32,
+    offset: Vector2,
+    rect: Rectangle,
     source_rect: Rectangle,
 }
 
@@ -80,70 +74,97 @@ impl<T: Hash + Eq> AnimationPlayer2D<T> {
     }
 }
 
-/// Animated Sprite Transform
-impl<T: Hash + Eq> AnimationPlayer2D<T> {
-    /// Set sprite rect
-    pub fn set_rect(&mut self, rect: Rectangle) {
-        self.rect = rect;
+/// Animated Sprite Transforms
+impl<T: Hash + Eq> SpriteTransform for AnimationPlayer2D<T> {
+    /// Set sprite rotation
+    fn set_rotation(&mut self, rotation: f32) {
+        self.rotation = rotation;
+    }
+
+    /// Set sprite tint
+    fn set_tint(&mut self, tint: Color) {
+        self.tint = tint;
+    }
+
+    /// Set sprite offset with x and y
+    fn set_offset_xy(&mut self, x: f32, y: f32) {
+        self.offset.x = x;
+        self.offset.y = y;
+    }
+
+    /// Set sprite offset
+    fn set_offset(&mut self, offset: Vector2) {
+        self.offset = offset;
+    }
+
+    // Set sprite x position
+    fn set_x(&mut self, x: f32) {
+        self.rect.x = x;
+    }
+
+    // Set sprite y position
+    fn set_y(&mut self, y: f32) {
+        self.rect.y = y;
+    }
+
+    /// Set sprite position with x and y
+    fn set_position_xy(&mut self, x: f32, y: f32) {
+        self.rect.x = x;
+        self.rect.y = y;
     }
 
     /// Set sprite position
-    pub fn set_position(&mut self, position: Vector2) {
+    fn set_position(&mut self, position: Vector2) {
         self.rect.x = position.x;
         self.rect.y = position.y;
     }
 
-    /// Set sprite offset
-    pub fn set_offset(&mut self, offset: Vector2) {
-        self.offset = offset;
-    }
-
-    /// resize sprite
-    pub fn set_size(&mut self, size: Vector2) {
-        self.rect.width = size.x;
-        self.rect.height = size.y;
+    /// Resize sprite
+    fn set_size(&mut self, width: f32, height: f32) {
+        self.rect.width = width;
+        self.rect.height = height;
     }
 
     /// Scale sprite by multiplier
-    pub fn set_scale(&mut self, scale: f32) {
+    fn set_scale(&mut self, scale: f32) {
         self.rect.width = self.source_rect.width * scale;
         self.rect.height = self.source_rect.height * scale;
     }
 
     /// Flip sprite horizontally
-    pub fn flip_h(&mut self) {
+    fn flip_h(&mut self) {
         self.source_rect.width *= -1.0;
     }
 
     /// Flip sprite vertically
-    pub fn flip_v(&mut self) {
+    fn flip_v(&mut self) {
         self.source_rect.height *= -1.0;
     }
 
     /// Face sprite right
-    pub fn face_right(&mut self) {
+    fn face_right(&mut self) {
         self.source_rect.width = self.source_rect.width.abs();
     }
 
     /// Face sprite left
-    pub fn face_left(&mut self) {
+    fn face_left(&mut self) {
         self.source_rect.width = -self.source_rect.width.abs();
     }
 
     /// Face sprite up
-    pub fn face_up(&mut self) {
+    fn face_up(&mut self) {
         self.source_rect.height = self.source_rect.height.abs();
     }
 
     /// Face sprite down
-    pub fn face_down(&mut self) {
+    fn face_down(&mut self) {
         self.source_rect.height = -self.source_rect.height.abs();
     }
 
     /// Set sprite horizontal direction
     /// meant for values of 1 & -1, other
     /// values will stretch the sprite
-    pub fn face_x(&mut self, direction: f32) {
+    fn face_x(&mut self, direction: f32) {
         if direction == 0.0 {
             return;
         }
@@ -154,37 +175,12 @@ impl<T: Hash + Eq> AnimationPlayer2D<T> {
     /// Set sprite vertical direction
     /// meant for values of 1 & -1, other
     /// values will stretch the sprite
-    pub fn face_y(&mut self, direction: f32) {
+    fn face_y(&mut self, direction: f32) {
         if direction == 0.0 {
             return;
         }
         assert!(direction == 1.0 || direction == -1.0);
         self.source_rect.height = direction * self.source_rect.height.abs();
-    }
-}
-
-impl AnimationPlayer2D<PlayerState> {
-    pub fn player(raylib: &mut RaylibHandle, thread: &RaylibThread) -> Self {
-        // add animations
-        let mut b = AnimationMachineBuilder::new(Player::SPRITE_SIZE);
-        b.add_animation(PlayerState::Idle, advn::IDLE, 4, 4.0);
-        b.add_animation(PlayerState::Idle, advn::IDLE, 4, Player::FPS_IDLE);
-        b.add_animation(PlayerState::Running, advn::RUN, 6, Player::FPS_RUN);
-        b.add_animation(PlayerState::Jumping, advn::JUMP, 4, Player::FPS_JUMP);
-        b.add_animation(PlayerState::Falling, advn::FALL, 2, Player::FPS_FALL);
-        b.add_animation(PlayerState::Crouching, advn::CRID, 4, Player::FPS_CRID);
-        b.add_animation(PlayerState::CrouchWalking, advn::CRWK, 6, Player::FPS_CRWK);
-        b.add_animation(PlayerState::Diving, advn::FALL, 2, Player::FPS_DIVE);
-        b.add_animation(PlayerState::WallSliding, advn::WSLD, 2, Player::FPS_WSLD);
-
-        // build animation player
-        let mut m = b.build(raylib, thread);
-
-        // resize all animations
-        m.set_scale(Player::SPRITE_SCALE);
-        m.set_offset(Player::SPRITE_OFFSET);
-
-        m
     }
 }
 

@@ -1,5 +1,5 @@
 use super::{Player, PlayerState::*};
-use crate::math::Math;
+use crate::{math::Math, sprite::SpriteTransform};
 
 pub fn on_enter(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
     if player.collider.size.y != Player::CROUCH_SIZE {
@@ -9,11 +9,12 @@ pub fn on_enter(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
         player.collider.position.y += Player::COLLISION_SIZE.y - Player::CROUCH_SIZE;
     }
 
+    // set sprite to crouch offset
     player.animation_player.set_offset(Player::SPRITE_CR_OFFSET);
 }
 
 pub fn on_exit(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
-    // update sprite
+    // reset sprite offset
     player.animation_player.set_offset(Player::SPRITE_OFFSET);
 }
 

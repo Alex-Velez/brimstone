@@ -1,5 +1,4 @@
-use super::{Player, PlayerState::*};
-use raylib::prelude::Vector2;
+use super::{Player, PlayerState::*, SpriteTransform};
 
 pub fn on_enter(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
     if raylib.is_key_down(player.controls.up) {
@@ -29,10 +28,10 @@ pub fn update(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
     }
 
     // change sprite offset
-    player.animation_player.set_offset(Vector2 {
-        x: Player::SPRITE_OFFSET.x - (player.collider.colliding.x * Player::SPRITE_SL_SHIFT),
-        y: Player::SPRITE_OFFSET.y,
-    });
+    player.animation_player.set_offset_xy(
+        Player::SPRITE_OFFSET.x - (player.collider.colliding.x * Player::SPRITE_SL_SHIFT),
+        Player::SPRITE_OFFSET.y,
+    );
 
     // next state
     check_next_state(player, raylib);
