@@ -1,8 +1,4 @@
-use crate::{
-    paths,
-    scene_machine::Scene,
-    sprite::{Sprite2D, SpriteTransform},
-};
+use crate::{paths, scene_machine::Scene, sprite::Sprite2D};
 use raylib::prelude::{Color, RaylibDraw, RaylibDrawHandle, RaylibHandle, RaylibThread};
 
 /// Loading constant values

@@ -1,5 +1,5 @@
 use super::{Player, PlayerState::*};
-use crate::{math::Math, sprite::SpriteTransform};
+use crate::math::Math;
 
 pub fn on_enter(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
     // set sprite to crouch offset

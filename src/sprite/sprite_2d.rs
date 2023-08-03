@@ -1,27 +1,18 @@
 use super::{SpriteTransform, Texture2DPlugin};
-use raylib::prelude::{
-    Color, RaylibDraw, RaylibHandle, RaylibThread, Rectangle, Texture2D, Vector2,
-};
+use raylib::prelude::{Color, RaylibDraw, RaylibHandle, RaylibThread, Texture2D, Vector2};
 
 pub struct Sprite2D {
     texture: Texture2D,
-    tint: Color,
-    rotation: f32,
-    offset: Vector2,
-    rect: Rectangle,
-    source_rect: Rectangle,
+    transform: SpriteTransform,
 }
 
 impl Sprite2D {
     pub fn from_texture(texture: Texture2D) -> Self {
-        let rect = Rectangle::new(0.0, 0.0, texture.width as f32, texture.height as f32);
+        let width = texture.width as f32;
+        let height = texture.height as f32;
         Sprite2D {
             texture,
-            tint: Color::WHITE,
-            rotation: 0.0,
-            offset: Vector2::new(0.0, 0.0),
-            rect,
-            source_rect: rect,
+            transform: SpriteTransform::new(width, height),
         }
     }
 
@@ -29,140 +20,108 @@ impl Sprite2D {
         Sprite2D::from_texture(Texture2D::from_path(raylib, thread, path))
     }
 
-    pub fn width(&self) -> f32 {
-        self.rect.width
-    }
-
-    pub fn height(&self) -> f32 {
-        self.rect.height
-    }
-
-    pub fn half_width(&self) -> f32 {
-        self.rect.width / 2.0
-    }
-
-    pub fn half_height(&self) -> f32 {
-        self.rect.height / 2.0
-    }
-
     pub fn draw(&self, raylib: &mut impl RaylibDraw) {
         raylib.draw_texture_pro(
             &self.texture,
-            self.source_rect,
-            self.rect,
-            self.offset,
-            self.rotation,
-            self.tint,
+            self.transform.source_rect,
+            self.transform.rect,
+            self.transform.offset,
+            self.transform.rotation,
+            self.transform.tint,
         );
     }
 }
 
-/// Sprite transforms
-impl SpriteTransform for Sprite2D {
-    /// Set sprite rotation
-    fn set_rotation(&mut self, rotation: f32) {
-        self.rotation = rotation;
+/// Export transform getters
+impl Sprite2D {
+    pub fn width(&self) -> f32 {
+        self.transform.width()
     }
 
-    /// Set sprite tint
-    fn set_tint(&mut self, tint: Color) {
-        self.tint = tint;
+    pub fn height(&self) -> f32 {
+        self.transform.height()
     }
 
-    /// Set sprite offset with x and y
-    fn set_offset_xy(&mut self, x: f32, y: f32) {
-        self.offset.x = x;
-        self.offset.y = y;
+    pub fn half_width(&self) -> f32 {
+        self.transform.half_width()
     }
 
-    /// Set sprite offset
-    fn set_offset(&mut self, offset: Vector2) {
-        self.offset = offset;
+    pub fn half_height(&self) -> f32 {
+        self.transform.half_height()
+    }
+}
+
+/// Export transform setters
+impl Sprite2D {
+    pub fn set_rotation(&mut self, rotation: f32) {
+        self.transform.set_rotation(rotation);
     }
 
-    /// Set sprite x position
-    fn set_x(&mut self, x: f32) {
-        self.rect.x = x;
+    pub fn set_tint(&mut self, tint: Color) {
+        self.transform.set_tint(tint);
     }
 
-    /// Set sprite y position
-    fn set_y(&mut self, y: f32) {
-        self.rect.y = y;
+    pub fn set_offset_xy(&mut self, x: f32, y: f32) {
+        self.transform.set_offset_xy(x, y);
     }
 
-    /// Set sprite position with x and y
-    fn set_position_xy(&mut self, x: f32, y: f32) {
-        self.rect.x = x;
-        self.rect.y = y;
+    pub fn set_offset(&mut self, offset: Vector2) {
+        self.transform.set_offset(offset);
     }
 
-    /// Set sprite position
-    fn set_position(&mut self, position: Vector2) {
-        self.rect.x = position.x;
-        self.rect.y = position.y;
+    pub fn set_x(&mut self, x: f32) {
+        self.transform.set_x(x);
     }
 
-    /// Resize sprite
-    fn set_size(&mut self, width: f32, height: f32) {
-        self.rect.width = width;
-        self.rect.height = height;
+    pub fn set_y(&mut self, y: f32) {
+        self.transform.set_y(y);
     }
 
-    /// Scale sprite by multiplier
-    fn set_scale(&mut self, scale: f32) {
-        self.rect.width = self.source_rect.width * scale;
-        self.rect.height = self.source_rect.height * scale;
+    pub fn set_position_xy(&mut self, x: f32, y: f32) {
+        self.transform.set_position_xy(x, y);
     }
 
-    /// Flip sprite horizontally
-    fn flip_h(&mut self) {
-        self.source_rect.width *= -1.0;
+    pub fn set_position(&mut self, position: Vector2) {
+        self.transform.set_position(position);
     }
 
-    /// Flip sprite vertically
-    fn flip_v(&mut self) {
-        self.source_rect.height *= -1.0;
+    pub fn set_size(&mut self, width: f32, height: f32) {
+        self.transform.set_size(width, height);
     }
 
-    /// Face sprite right
-    fn face_right(&mut self) {
-        self.source_rect.width = self.source_rect.width.abs();
+    pub fn set_scale(&mut self, scale: f32) {
+        self.transform.set_scale(scale);
     }
 
-    /// Face sprite left
-    fn face_left(&mut self) {
-        self.source_rect.width = -self.source_rect.width.abs();
+    pub fn flip_h(&mut self) {
+        self.transform.flip_h();
     }
 
-    /// Face sprite up
-    fn face_up(&mut self) {
-        self.source_rect.height = self.source_rect.height.abs();
+    pub fn flip_v(&mut self) {
+        self.transform.flip_v();
     }
 
-    /// Face sprite down
-    fn face_down(&mut self) {
-        self.source_rect.height = -self.source_rect.height.abs();
+    pub fn face_right(&mut self) {
+        self.transform.face_right();
     }
 
-    /// Set sprite horizontal direction
-    /// meant for values of 1 & -1, other
-    /// values will stretch the sprite
-    fn face_x(&mut self, direction: f32) {
-        if direction == 0.0 {
-            return;
-        }
-        assert!(direction == 1.0 || direction == -1.0);
-        self.source_rect.width = direction * self.source_rect.width.abs();
+    pub fn face_left(&mut self) {
+        self.transform.face_left();
     }
 
-    /// Set sprite vertical direction
-    /// meant for values of 1 & -1, other
-    /// values will stretch the sprite
-    fn face_y(&mut self, direction: f32) {
-        if direction == 0.0 {
-            return;
-        }
-        assert!(direction == 1.0 || direction == -1.0);
-        self.source_rect.height = direction * self.source_rect.height.abs();
+    pub fn face_up(&mut self) {
+        self.transform.face_up();
+    }
+
+    pub fn face_down(&mut self) {
+        self.transform.face_down();
+    }
+
+    pub fn face_x(&mut self, direction: f32) {
+        self.transform.face_x(direction);
+    }
+
+    pub fn face_y(&mut self, direction: f32) {
+        self.transform.face_y(direction);
     }
 }

@@ -10,4 +10,4 @@ pub use animated::AnimatedSprite2D;
 pub use animation_player::{AnimationMachineBuilder, AnimationPlayer2D};
 pub use parallax::ParallaxLayer2D;
 pub use sprite_2d::Sprite2D;
-pub use transform::SpriteTransform;
+use transform::SpriteTransform;

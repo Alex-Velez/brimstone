@@ -1,4 +1,4 @@
-use crate::{player::Player, sprite::SpriteTransform};
+use crate::player::Player;
 
 pub(crate) mod crouch_walking;
 pub(crate) mod crouching;

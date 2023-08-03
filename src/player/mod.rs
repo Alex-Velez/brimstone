@@ -1,8 +1,5 @@
 use crate::{
-    collision,
-    raylib_plugins::FrameLimiter,
-    sprite::{AnimationPlayer2D, SpriteTransform},
-    state_machine::StateMachine,
+    collision, raylib_plugins::FrameLimiter, sprite::AnimationPlayer2D, state_machine::StateMachine,
 };
 use raylib::prelude::{RaylibDraw, RaylibHandle, RaylibThread, Vector2};
 
