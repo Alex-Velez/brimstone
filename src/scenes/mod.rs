@@ -36,22 +36,3 @@ impl SceneMachine<SceneID> {
         machine
     }
 }
-
-/// Scene container
-pub struct Stage {
-    pause_menu: pause_menu::Environment,
-    main_menu: main_menu::Environment,
-    loading: loading::Environment,
-    world: world::Environment,
-}
-
-impl Stage {
-    pub fn init(raylib: &mut RaylibHandle, thread: &RaylibThread) -> Self {
-        Self {
-            pause_menu: pause_menu::Environment::init(raylib, thread),
-            main_menu: main_menu::Environment::init(raylib, thread),
-            loading: loading::Environment::init(raylib, thread),
-            world: world::Environment::init(raylib, thread),
-        }
-    }
-}

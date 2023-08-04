@@ -1,5 +1,5 @@
 use raylib::RaylibHandle;
-use std::{collections::HashMap, hash::Hash};
+use std::{collections::HashMap, fmt::Debug, hash::Hash};
 
 pub struct StateMachine<T, O> {
     pub update: HashMap<T, fn(&mut O, &mut RaylibHandle)>,
@@ -9,7 +9,7 @@ pub struct StateMachine<T, O> {
 
 impl<T, O> StateMachine<T, O>
 where
-    T: PartialEq + Eq + Hash + Copy,
+    T: PartialEq + Eq + Hash + Copy + Default + Debug,
 {
     pub fn new() -> Self {
         StateMachine {

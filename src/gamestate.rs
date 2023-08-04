@@ -1,6 +1,6 @@
 use crate::{
     engine::prelude::{FrameLimiter, SceneMachine, Window},
-    scenes::{SceneID, Stage},
+    scenes::SceneID,
 };
 use raylib::prelude::{
     Color, KeyboardKey, RaylibDraw, RaylibDrawHandle, RaylibHandle, RaylibThread, Rectangle,
@@ -8,7 +8,6 @@ use raylib::prelude::{
 
 pub struct GameState {
     window: Window,
-    stage: Stage,
     scene_machine: SceneMachine<SceneID>,
     paused: bool,
     exit: bool,
@@ -17,9 +16,8 @@ pub struct GameState {
 
 impl GameState {
     pub fn new(raylib: &mut RaylibHandle, thread: &RaylibThread) -> Self {
-        GameState {
+        Self {
             window: Window::new(raylib),
-            stage: Stage::init(raylib, thread),
             scene_machine: SceneMachine::init(raylib, thread),
             paused: false,
             exit: false,
