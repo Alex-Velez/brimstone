@@ -1,15 +1,15 @@
 use raylib::prelude::{Color, RaylibDraw, Rectangle, Vector2};
 
-pub struct Rect {
+pub struct Rect2D {
     pub position: Vector2,
     pub size: Vector2,
     pub velocity: Vector2,
     pub colliding: Vector2,
 }
 
-impl Rect {
+impl Rect2D {
     pub const fn new(width: f32, height: f32) -> Self {
-        Rect {
+        Rect2D {
             position: Vector2::new(0.0, 0.0),
             size: Vector2::new(width, height),
             velocity: Vector2::new(0.0, 0.0),
@@ -18,7 +18,7 @@ impl Rect {
     }
 
     pub const fn newv(size: Vector2) -> Self {
-        Rect {
+        Rect2D {
             position: Vector2::new(0.0, 0.0),
             size,
             velocity: Vector2::new(0.0, 0.0),
@@ -26,52 +26,44 @@ impl Rect {
         }
     }
 
-    /// Position rect to (x, y)
-    pub fn set_position(mut self, x: f32, y: f32) -> Self {
+    pub fn with_position(mut self, x: f32, y: f32) -> Self {
         self.position.x = x;
         self.position.y = y;
         self
     }
 
-    /// Position center of rect to (x, y)
-    pub fn set_position_center(mut self, x: f32, y: f32) -> Self {
+    pub fn with_position_center(mut self, x: f32, y: f32) -> Self {
         self.position.x = x - (self.size.x / 2.0);
         self.position.y = y - (self.size.y / 2.0);
         self
     }
 
-    /// Check if bottom is colliding
     pub fn on_floor(&self) -> bool {
         self.colliding.y <= -1.0
     }
 
-    /// Check if top is colliding
     pub fn on_roof(&self) -> bool {
         self.colliding.y >= 1.0
     }
 
-    /// Check if sides are colliding
     pub fn on_wall(&self) -> bool {
         self.colliding.x != 0.0
     }
 
-    /// Check if left side is colliding
     pub fn on_wall_left(&self) -> bool {
         self.colliding.x <= -1.0
     }
 
-    /// Check if right side is colliding
     pub fn on_wall_right(&self) -> bool {
         self.colliding.x == 1.0
     }
 
-    /// Reset colliding vector
     pub fn reset_colliding(&mut self) {
         self.colliding = Vector2::new(0.0, 0.0);
     }
 }
 
-impl Rect {
+impl Rect2D {
     pub fn draw(&self, color: Color, raylib: &mut impl RaylibDraw) {
         // outline
         raylib.draw_rectangle_lines_ex(
@@ -90,7 +82,7 @@ impl Rect {
     }
 }
 
-impl Rect {
+impl Rect2D {
     /// Rect vs Point collision check
     fn check_vec2(&self, point: &Vector2) -> bool {
         return point.x >= self.position.x
@@ -100,7 +92,7 @@ impl Rect {
     }
 
     /// Rect vs Rect collision check (aabb)
-    pub fn check_rect(&self, rect2: &Rect) -> bool {
+    pub fn check_rect(&self, rect2: &Rect2D) -> bool {
         self.position.x >= (rect2.position.x - self.size.x)
             && self.position.x <= (rect2.position.x + rect2.size.x)
             && self.position.y >= (rect2.position.y - self.size.y)
@@ -108,7 +100,7 @@ impl Rect {
     }
 
     /// Rect vs Rect collision resolution (aabb dynamic)
-    pub fn collide_rect(&mut self, rect2: &mut Rect) -> bool {
+    pub fn collide_rect(&mut self, rect2: &mut Rect2D) -> bool {
         if self.check_rect(rect2) {
             // get center of rectangles
             let center1 = self.position + (self.size / 2.0);

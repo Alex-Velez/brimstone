@@ -1,19 +1,13 @@
 #![allow(unused_variables, dead_code)]
 //#![windows_subsystem = "windows"]
 
-mod button;
-mod collision;
+mod engine;
 mod gamestate;
-mod math;
 mod paths;
 mod player;
-mod raylib_plugins;
-mod scene_machine;
 mod scenes;
-mod sprite;
-mod state_machine;
-mod timer;
-mod window;
+
+use engine::prelude::Window;
 
 fn main() {
     // initialize raylib audio
@@ -21,8 +15,8 @@ fn main() {
 
     // initialize raylib
     let (mut raylib, thread) = raylib::init()
-        .title(window::DEFAULT_TITLE)
-        .size(window::DEFAULT_WIDTH, window::DEFAULT_HEIGHT)
+        .title(Window::DEFAULT_TITLE)
+        .size(Window::DEFAULT_WIDTH, Window::DEFAULT_HEIGHT)
         .resizable()
         // .undecorated()
         .build();

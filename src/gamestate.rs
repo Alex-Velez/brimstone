@@ -1,8 +1,6 @@
 use crate::{
-    raylib_plugins::FrameLimiter,
-    scene_machine::SceneMachine,
+    engine::prelude::{FrameLimiter, SceneMachine, Window},
     scenes::{SceneID, Stage},
-    window::{self, Window},
 };
 use raylib::prelude::{
     Color, KeyboardKey, RaylibDraw, RaylibDrawHandle, RaylibHandle, RaylibThread, Rectangle,
@@ -125,7 +123,7 @@ impl GameState {
         } else {
             // fps checker
             if raylib.get_fps() < 15 && raylib.get_time() > 2.0 {
-                println!("{}: FPS too low for engine!", window::DEFAULT_TITLE);
+                println!("{}: FPS too low for engine!", Window::DEFAULT_TITLE);
                 self.exit();
             }
         }

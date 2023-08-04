@@ -1,4 +1,4 @@
-use crate::{math::Math, raylib_plugins::FrameLimiter, window};
+use super::{FrameLimiter, Math, Window};
 use raylib::prelude::{Camera2D, RaylibHandle, Vector2};
 
 const ZOOM_MINIMUM: f32 = 0.5; // zoom out multiplier
@@ -128,7 +128,7 @@ impl CameraEx2D {
 
         // adjust zoom scale
         self.zoom_scale =
-            ((win_width * win_height) / (window::DEFAULT_SIZE.x * window::DEFAULT_SIZE.y)).sqrt();
+            ((win_width * win_height) / (Window::DEFAULT_SIZE.x * Window::DEFAULT_SIZE.y)).sqrt();
 
         // frame time
         let frame_time = raylib.get_frame_time_limited();

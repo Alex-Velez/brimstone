@@ -1,4 +1,6 @@
-use crate::player::Player;
+use self::PlayerState::*;
+use super::Player;
+use crate::engine::{math, prelude::Math};
 
 pub(crate) mod crouch_walking;
 pub(crate) mod crouching;

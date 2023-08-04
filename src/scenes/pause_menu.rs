@@ -1,4 +1,4 @@
-use crate::scene_machine::Scene;
+use crate::engine::prelude::Scene;
 use raylib::prelude::{Color, RaylibDraw, RaylibDrawHandle, RaylibHandle, RaylibThread};
 
 const BACKGROUND: Color = Color::new(219, 95, 83, 255);

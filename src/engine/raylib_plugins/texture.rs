@@ -1,5 +1,7 @@
-use super::{DEFAULT_TITLE, MISSING_TEXTURE};
+use super::{Window, MISSING_TEXTURE};
 use raylib::prelude::{Image, RaylibHandle, RaylibThread, Texture2D};
+
+const DEFAULT_TITLE: &str = Window::DEFAULT_TITLE;
 
 pub trait Texture2DPlugin {
     fn from_path(raylib: &mut RaylibHandle, thread: &RaylibThread, path: &str) -> Texture2D;

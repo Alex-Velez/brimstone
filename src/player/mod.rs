@@ -1,6 +1,4 @@
-use crate::{
-    collision, raylib_plugins::FrameLimiter, sprite::AnimationPlayer2D, state_machine::StateMachine,
-};
+use crate::engine::prelude::{AnimationPlayer2D, FrameLimiter, Ray2D, Rect2D, StateMachine};
 use raylib::prelude::{RaylibDraw, RaylibHandle, RaylibThread, Vector2};
 
 mod controls;
@@ -57,8 +55,8 @@ pub struct Player {
     pub dive: f32,
 
     // physics
-    pub collider: collision::Rect,
-    pub ground_ray: collision::Ray2D,
+    pub collider: Rect2D,
+    pub ground_ray: Ray2D,
     pub frame_time: f32,
     pub gravity: f32,
     pub ground_friction: f32,
@@ -97,10 +95,10 @@ impl Player {
             dive: 1.5,
 
             // physics
-            collider: collision::Rect::newv(Player::COLLISION_SIZE).set_position(0.0, -100.0),
-            ground_ray: collision::Ray2D::new()
+            collider: Rect2D::newv(Player::COLLISION_SIZE).with_position(0.0, -100.0),
+            ground_ray: Ray2D::new()
                 .with_position(200.0, 100.0)
-                .with_direction(collision::Ray2D::DOWN * 50.0),
+                .with_direction(Ray2D::DOWN * 50.0),
             frame_time: 0.0,
             gravity: 1500.0,
             ground_friction: 1.0,
@@ -203,7 +201,7 @@ impl Player {
         self.ground_ray.reset_colliding();
     }
 
-    pub fn collide_rects(&mut self, raylib: &mut RaylibHandle, floors: &mut Vec<collision::Rect>) {
+    pub fn collide_rects(&mut self, raylib: &mut RaylibHandle, floors: &mut Vec<Rect2D>) {
         // ground ray check conditions
         let mut ray_conditions = false;
 

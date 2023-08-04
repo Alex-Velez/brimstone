@@ -1,5 +1,7 @@
-use super::FRAME_LIMIT;
 use raylib::prelude::RaylibHandle;
+
+/// Minimum frame limit
+const FRAME_LIMIT: f32 = 1.0 / 20.0_f32;
 
 pub trait FrameLimiter {
     fn get_frame_time_limited(&self) -> f32;

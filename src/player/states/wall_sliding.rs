@@ -1,4 +1,4 @@
-use super::{Player, PlayerState::*};
+use super::*;
 
 pub fn on_enter(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
     if raylib.is_key_down(player.controls.up) {

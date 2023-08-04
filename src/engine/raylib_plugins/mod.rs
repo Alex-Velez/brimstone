@@ -10,10 +10,7 @@ pub use frame_limiter::FrameLimiter;
 pub use image::ImagePlugin;
 pub use texture::Texture2DPlugin;
 
-use crate::window::DEFAULT_TITLE;
+use super::{math::Math, window::Window};
 
 /// Default texture when image path not found
-const MISSING_TEXTURE: &[u8] = include_bytes!("../../resources/missing_texture.png");
-
-/// Minimum frame limit
-const FRAME_LIMIT: f32 = 1.0 / 20.0_f32;
+const MISSING_TEXTURE: &[u8] = include_bytes!("missing_texture.png");

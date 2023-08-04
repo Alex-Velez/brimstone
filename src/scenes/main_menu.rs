@@ -1,7 +1,6 @@
 use crate::{
+    engine::prelude::{ParallaxLayer2D, Scene, Sprite2D},
     paths::main_menu,
-    scene_machine::Scene,
-    sprite::{ParallaxLayer2D, Sprite2D},
 };
 use raylib::prelude::{Color, RaylibDraw, RaylibDrawHandle, RaylibHandle, RaylibThread, Vector2};
 

@@ -1,4 +1,4 @@
-use crate::scene_machine::SceneMachine;
+use crate::engine::prelude::SceneMachine;
 use raylib::prelude::{RaylibHandle, RaylibThread};
 use std::{fmt::Debug, hash::Hash};
 

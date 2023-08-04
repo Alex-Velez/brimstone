@@ -1,14 +1,14 @@
 use raylib::prelude::{Color, RaylibDraw, Vector2};
 
-pub struct Circle {
+pub struct Circle2D {
     pub position: Vector2,
     pub radius: f32,
     pub colliding: bool,
 }
 
-impl Circle {
-    pub const fn new(radius: f32) -> Circle {
-        Circle {
+impl Circle2D {
+    pub const fn new(radius: f32) -> Circle2D {
+        Circle2D {
             position: Vector2::new(0.0, 0.0),
             radius,
             colliding: false,
@@ -28,16 +28,16 @@ impl Circle {
     }
 }
 
-impl Circle {
+impl Circle2D {
     /// Circle vs Circle collision check
-    pub fn check(&self, circle2: &Circle) -> bool {
+    pub fn check(&self, circle2: &Circle2D) -> bool {
         (circle2.position.x - self.position.x).powi(2)
             + (circle2.position.y - self.position.y).powi(2)
             <= (self.radius + circle2.radius).powi(2)
     }
 
     /// Circle vs Circle collision resolution
-    pub fn collide(&mut self, circle2: &mut Circle) -> bool {
+    pub fn collide(&mut self, circle2: &mut Circle2D) -> bool {
         if self.check(circle2) {
             // get offset
             let displacement = Vector2::new(
@@ -63,7 +63,7 @@ impl Circle {
     }
 }
 
-impl Circle {
+impl Circle2D {
     pub fn draw(&self, color: Color, raylib: &mut impl RaylibDraw) {
         // outline
         raylib.draw_circle_lines(

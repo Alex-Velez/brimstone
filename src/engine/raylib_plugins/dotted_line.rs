@@ -1,4 +1,5 @@
 use raylib::prelude::{Color, RaylibDraw, RaylibDrawHandle, RaylibMode2D, Vector2};
+
 pub trait DottedLine {
     fn draw_dotted_line(
         &mut self,

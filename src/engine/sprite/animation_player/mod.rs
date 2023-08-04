@@ -1,4 +1,4 @@
-use super::{SpriteTransform, Timer};
+use super::{SpriteTransform, Texture2DPlugin, Timer};
 use raylib::prelude::{Color, RaylibDraw, Texture2D, Vector2};
 use std::{collections::HashMap, hash::Hash};
 

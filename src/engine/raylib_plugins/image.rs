@@ -1,5 +1,7 @@
-use super::{DEFAULT_TITLE, MISSING_TEXTURE};
+use super::{Window, MISSING_TEXTURE};
 use raylib::prelude::Image;
+
+const DEFAULT_TITLE: &str = Window::DEFAULT_TITLE;
 
 pub trait ImagePlugin {
     fn from_path(path: &str) -> Image;

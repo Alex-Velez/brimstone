@@ -1,4 +1,7 @@
-use super::{raylib_plugins::Texture2DPlugin, timer::Timer};
+use super::{
+    raylib_plugins::{FrameLimiter, Texture2DPlugin},
+    timer::Timer,
+};
 
 mod animated;
 mod animation_player;

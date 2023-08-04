@@ -1,6 +1,4 @@
-use crate::{
-    raylib_plugins::FrameLimiter, raylib_plugins::Texture2DPlugin, sprite::SpriteTransform,
-};
+use super::{FrameLimiter, SpriteTransform, Texture2DPlugin};
 use raylib::prelude::{RaylibDraw, RaylibHandle, RaylibThread, Texture2D, Vector2};
 
 pub struct ParallaxLayer2D {

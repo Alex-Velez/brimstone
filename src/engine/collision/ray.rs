@@ -1,4 +1,4 @@
-use super::Rect;
+use super::Rect2D;
 use raylib::prelude::{Color, RaylibDraw, Vector2};
 
 pub struct Ray2D {
@@ -69,7 +69,7 @@ impl Ray2D {
 }
 
 impl Ray2D {
-    pub fn check_rect(&mut self, rect: &mut Rect) -> bool {
+    pub fn check_rect(&mut self, rect: &mut Rect2D) -> bool {
         // Calculate intersections with rectangle bounding axes
         let mut t_near = (rect.position - self.position) / self.direction;
         let mut t_far = (rect.position + rect.size - self.position) / self.direction;

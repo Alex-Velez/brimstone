@@ -1,4 +1,7 @@
-use crate::{collision, player::Player, raylib_plugins::CameraEx2D, scene_machine::Scene};
+use crate::{
+    engine::prelude::{CameraEx2D, Rect2D, Scene},
+    player::Player,
+};
 use raylib::prelude::{
     Color, RaylibDraw, RaylibDrawHandle, RaylibHandle, RaylibMode2DExt, RaylibThread,
 };
@@ -8,7 +11,7 @@ const BACKGROUND_COLOR: Color = Color::new(25, 25, 25, 255);
 pub struct Environment {
     camera: CameraEx2D,
     player: Player,
-    floors: Vec<collision::Rect>,
+    floors: Vec<Rect2D>,
 }
 
 impl Environment {
@@ -22,9 +25,9 @@ impl Environment {
                 .with_move_speed(7.0),
             player: Player::new(raylib, thread),
             floors: vec![
-                collision::Rect::new(2000.0, 100.0).set_position_center(0.0, 200.0),
-                collision::Rect::new(100.0, 100.0).set_position_center(0.0, 100.0),
-                collision::Rect::new(100.0, 500.0).set_position_center(500.0, 100.0),
+                Rect2D::new(2000.0, 100.0).with_position_center(0.0, 200.0),
+                Rect2D::new(100.0, 100.0).with_position_center(0.0, 100.0),
+                Rect2D::new(100.0, 500.0).with_position_center(500.0, 100.0),
             ],
         }
     }

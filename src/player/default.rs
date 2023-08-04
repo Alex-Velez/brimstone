@@ -1,8 +1,7 @@
+use super::{states::*, Player, PlayerState};
 use crate::{
+    engine::prelude::{AnimationMachineBuilder, AnimationPlayer2D, StateMachine},
     paths::player::advn,
-    player::{states::*, Player, PlayerState},
-    sprite::{AnimationMachineBuilder, AnimationPlayer2D},
-    state_machine::StateMachine,
 };
 use raylib::prelude::{RaylibHandle, RaylibThread};
 

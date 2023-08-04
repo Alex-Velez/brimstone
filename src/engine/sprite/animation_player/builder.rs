@@ -1,4 +1,4 @@
-use crate::{raylib_plugins::Texture2DPlugin, sprite::AnimationPlayer2D};
+use super::{AnimationPlayer2D, Texture2DPlugin};
 use raylib::prelude::{RaylibHandle, RaylibThread, Texture2D, Vector2};
 use std::hash::Hash;
 
