@@ -1,38 +1,73 @@
 use crate::{
-    engine::prelude::{FrameLimiter, SceneMachine, Window},
-    scenes::SceneID,
+    paths,
+    scenes::{GlobalEnvironment, SceneID, SceneInitializer},
+};
+use rayexlib::prelude::{
+    Debug, DebugTools, FrameLimiter, ImagePlugin, SceneManager, Toggle, Window,
 };
 use raylib::prelude::{
-    Color, KeyboardKey, RaylibDraw, RaylibDrawHandle, RaylibHandle, RaylibThread, Rectangle,
+    Color, Image, KeyboardKey, MouseCursor, RaylibDraw, RaylibDrawHandle, RaylibHandle,
+    RaylibThread, Rectangle,
 };
 
 pub struct GameState {
     window: Window,
-    scene_machine: SceneMachine<SceneID>,
+    scene_machine: SceneManager<SceneID, GlobalEnvironment>,
+    global_env: GlobalEnvironment,
     paused: bool,
     exit: bool,
-    debug: DebugTools,
+    debug: Debug,
 }
 
 impl GameState {
     pub fn new(raylib: &mut RaylibHandle, thread: &RaylibThread) -> Self {
         Self {
-            window: Window::new(raylib),
-            scene_machine: SceneMachine::init(raylib, thread),
+            window: Window::new(),
+            scene_machine: SceneManager::init(raylib, thread),
+            global_env: GlobalEnvironment::init(raylib, thread),
             paused: false,
             exit: false,
-            debug: DebugTools::default(),
+            debug: Debug::default(),
         }
+    }
+
+    pub fn raylib_setup() -> (RaylibHandle, RaylibThread) {
+        // initialize raylib audio
+        let rl_audio = raylib::audio::RaylibAudio::init_audio_device();
+
+        // initialize raylib
+        let (mut raylib, thread) = raylib::init()
+            .title(Window::DEFAULT_TITLE)
+            .size(Window::DEFAULT_WIDTH, Window::DEFAULT_HEIGHT)
+            .resizable()
+            // .undecorated()
+            .build();
+
+        // settings
+        raylib.set_window_icon(Image::from_path(paths::ICON));
+        raylib.set_mouse_cursor(MouseCursor::MOUSE_CURSOR_CROSSHAIR);
+        raylib.set_exit_key(None);
+        // raylib.set_target_fps(60);
+
+        // switch controller mappings
+        // unsafe {
+        //     let path = std::fs::read_to_string(paths::MAPPING).unwrap();
+        //     let cpath = std::ffi::CString::new(path).unwrap();
+        //     raylib::ffi::SetGamepadMappings(cpath.as_ptr());
+        // }
+
+        (raylib, thread)
     }
 
     pub fn run(&mut self, raylib: &mut RaylibHandle, thread: &RaylibThread) {
         // call current scene on_start fn
-        self.scene_machine.on_enter(raylib);
+        self.scene_machine.on_enter(&mut self.global_env, raylib);
 
         // main loop
         while !raylib.window_should_close() && !self.exit {
             // current scene update function
             self.update(raylib);
+            // self.state_manager.update(, raylib);
 
             // init draw handle
             let mut rl = raylib.begin_drawing(&thread);
@@ -48,13 +83,13 @@ impl GameState {
 
         if !self.paused && !self.debug.paused && raylib.is_window_focused() {
             // current scene update
-            self.scene_machine.update(raylib);
+            self.scene_machine.update(&mut self.global_env, raylib);
         }
     }
 
     fn draw(&self, raylib: &mut RaylibDrawHandle) {
         // current scene draw
-        self.scene_machine.draw(raylib);
+        self.scene_machine.draw(&self.global_env, raylib);
 
         // pause screen
         if self.paused {
@@ -74,18 +109,6 @@ impl GameState {
 
     pub fn exit(&mut self) {
         self.exit = true;
-    }
-
-    pub fn next_scene(&mut self, raylib: &mut RaylibHandle, next_scene: SceneID) {
-        self.scene_machine.next_scene(raylib, next_scene);
-    }
-
-    pub fn toggle_pause(&mut self) {
-        self.paused = !self.paused;
-    }
-
-    pub fn toggle_debug(&mut self) {
-        self.debug.active = !self.debug.active;
     }
 
     pub fn toggle_fullscreen(&mut self, raylib: &mut RaylibHandle) {
@@ -115,7 +138,7 @@ impl GameState {
 
 impl GameState {
     fn global_update(&mut self, raylib: &mut RaylibHandle) {
-        // debug utilitizes
+        // debug utilities
         if self.debug.active {
             self.debug_update(raylib);
         } else {
@@ -131,16 +154,28 @@ impl GameState {
             // global hot keys
             match key {
                 // toggle pause
-                KeyboardKey::KEY_ESCAPE => self.toggle_pause(),
+                KeyboardKey::KEY_ESCAPE => self.paused.toggle(),
                 // toggle fullscreen
                 KeyboardKey::KEY_F11 => self.toggle_fullscreen(raylib),
                 // toggle debug
-                KeyboardKey::KEY_F3 => self.toggle_debug(),
+                KeyboardKey::KEY_F3 => self.debug.active.toggle(),
                 // scene switchers
-                KeyboardKey::KEY_ONE => self.next_scene(raylib, SceneID::MainMenu),
-                KeyboardKey::KEY_TWO => self.next_scene(raylib, SceneID::World),
-                KeyboardKey::KEY_THREE => self.next_scene(raylib, SceneID::Loading),
-                KeyboardKey::KEY_FOUR => self.next_scene(raylib, SceneID::PauseMenu),
+                KeyboardKey::KEY_ONE => {
+                    self.scene_machine
+                        .next_scene(&mut self.global_env, raylib, SceneID::MainMenu)
+                }
+                KeyboardKey::KEY_TWO => {
+                    self.scene_machine
+                        .next_scene(&mut self.global_env, raylib, SceneID::World)
+                }
+                KeyboardKey::KEY_THREE => {
+                    self.scene_machine
+                        .next_scene(&mut self.global_env, raylib, SceneID::Loading)
+                }
+                KeyboardKey::KEY_FOUR => {
+                    self.scene_machine
+                        .next_scene(&mut self.global_env, raylib, SceneID::PauseMenu)
+                }
                 _ => {}
             }
 
@@ -181,25 +216,7 @@ impl GameState {
     }
 }
 
-pub struct DebugTools {
-    pub active: bool,
-    pub step_frames: bool,
-    pub paused: bool,
-    pub step_fps: u32,
-}
-
-impl Default for DebugTools {
-    fn default() -> Self {
-        Self {
-            active: false,
-            step_frames: false,
-            paused: false,
-            step_fps: 30,
-        }
-    }
-}
-
-impl GameState {
+impl DebugTools for GameState {
     fn debug_update(&mut self, raylib: &mut RaylibHandle) {
         // pause game on each frame
         if self.debug.step_frames {
@@ -216,7 +233,7 @@ impl GameState {
 
     fn debug_draw(&self, raylib: &mut RaylibDrawHandle) {
         // scene debug overlay
-        self.scene_machine.debug(raylib);
+        self.scene_machine.debug(&self.global_env, raylib);
 
         let win_width = raylib.get_screen_width();
         let win_height = raylib.get_screen_height();
@@ -237,7 +254,7 @@ impl GameState {
             ),
             (
                 Color::BEIGE,
-                &format!("current scene: {:?}", self.scene_machine.current_scene()),
+                &format!("current scene: {:?}", self.scene_machine.id),
             ),
         ];
 

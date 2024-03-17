@@ -1,10 +1,8 @@
+use rayexlib::state_manager::StateManager;
+
 use super::*;
 
-pub fn on_enter(player: &mut Player, raylib: &mut raylib::RaylibHandle) {}
-
-pub fn on_exit(player: &mut Player, raylib: &mut raylib::RaylibHandle) {}
-
-pub fn update(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
+pub fn update(player: &mut Player, raylib: &mut raylib::prelude::RaylibHandle) {
     if player.move_dir.x == 0.0 {
         // stop velocity
         player.collider.velocity.x.lerp(
@@ -25,19 +23,23 @@ pub fn update(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
     check_next_state(player, raylib);
 }
 
+#[inline]
 fn check_next_state(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
-    let a = player.collider.on_floor();
-    let b = player.collider.on_wall();
-    let c = player.move_dir.x == 0.0;
-    let d = raylib.is_key_down(player.controls.down);
-
-    match (a, b, c, d) {
-        (true, _, true, false) => player.transition(Idle, raylib),
-        (true, _, false, false) => player.transition(Running, raylib),
-        (true, _, true, true) => player.transition(Crouching, raylib),
-        (true, _, false, true) => player.transition(CrouchWalking, raylib),
-        (false, true, _, false) => player.transition(WallSliding, raylib),
-        (false, _, _, true) => player.transition(Diving, raylib),
-        _ => {}
-    };
+    if player.collider.on_floor() {
+        match (
+            player.move_dir.x == 0.0,
+            raylib.is_key_down(player.controls.down),
+        ) {
+            (true, true) => StateManager::next_state(player, PlayerState::Crouching, raylib),
+            (true, false) => StateManager::next_state(player, PlayerState::Idle, raylib),
+            (false, true) => StateManager::next_state(player, PlayerState::CrouchWalking, raylib),
+            (false, false) => StateManager::next_state(player, PlayerState::Running, raylib),
+        }
+    } else {
+        if player.collider.on_wall() {
+            StateManager::next_state(player, PlayerState::WallSliding, raylib);
+        } else if raylib.is_key_down(player.controls.down) {
+            StateManager::next_state(player, PlayerState::Diving, raylib);
+        }
+    }
 }

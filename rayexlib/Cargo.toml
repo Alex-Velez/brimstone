@@ -1,21 +1,17 @@
 [package]
-name = "brimstone"
+name = "rayexlib"
 version = "0.1.0"
 edition = "2021"
 authors = ["Alexander Velez <alexandervelez7245@gmail.com>"]
-description = "8-Bit Brimstone Brawl, 2d fighting game"
+description = "game engine utilities built on top of raylib"
 #readme = "README.md"
 repository = "https://github.com/Alex-Velez/brimstone"
 license = "MIT"
-keywords = ["2d", "fighter", "game"]
+keywords = ["2d", "game", "engine"]
 categories = ["game"]
 
 [dependencies]
 raylib = "3.7.0"
-rayexlib = { path = "rayexlib" }
-
-[build-dependencies]
-embed-resource = "2.2.0"
 
 # [profile.dev]
 # lto = false

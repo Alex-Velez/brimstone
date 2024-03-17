@@ -34,4 +34,8 @@ pub mod player {
     }
 }
 
+pub mod world {
+    pub const TILESET: &str = "resources/tiles/mainlev_build.png";
+}
+
 pub const MAPPING: &str = "resources/glfw/gamecontrollerdb.txt";

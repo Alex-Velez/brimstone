@@ -1,10 +1,6 @@
 use super::*;
 
-pub fn on_enter(player: &mut Player, raylib: &mut raylib::RaylibHandle) {}
-
-pub fn on_exit(player: &mut Player, raylib: &mut raylib::RaylibHandle) {}
-
-pub fn update(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
+pub fn update(player: &mut Player, raylib: &mut raylib::prelude::RaylibHandle) {
     // accelerate velocity to max speed
     player.collider.velocity.x.lerp(
         player.move_dir.x * player.max_speed,
@@ -15,16 +11,17 @@ pub fn update(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
     check_next_state(player, raylib);
 }
 
+#[inline]
 fn check_next_state(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
     if player.collider.on_floor() {
         if player.move_dir.x == 0.0 {
-            player.transition(Idle, raylib);
+            StateManager::next_state(player, PlayerState::Idle, raylib);
         } else if raylib.is_key_down(player.controls.down) {
-            player.transition(Crouching, raylib);
+            StateManager::next_state(player, PlayerState::Crouching, raylib);
         } else if raylib.is_key_down(player.controls.up) {
-            player.transition(Jumping, raylib);
+            StateManager::next_state(player, PlayerState::Jumping, raylib);
         }
     } else {
-        player.transition(Falling, raylib);
+        StateManager::next_state(player, PlayerState::Falling, raylib)
     }
 }

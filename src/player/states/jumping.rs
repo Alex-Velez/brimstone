@@ -1,16 +1,14 @@
 use super::*;
 
-pub fn on_enter(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
+pub fn on_enter(player: &mut Player, _raylib: &mut raylib::prelude::RaylibHandle) {
     // reset jump animation
-    player.animation_player.reset_frame(&Jumping);
+    player.animation_player.reset_frame(&PlayerState::Jumping);
 
     // add jump force
     player.collider.velocity.y -= player.jump;
 }
 
-pub fn on_exit(player: &mut Player, raylib: &mut raylib::RaylibHandle) {}
-
-pub fn update(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
+pub fn update(player: &mut Player, raylib: &mut raylib::prelude::RaylibHandle) {
     if player.move_dir.x == 0.0 {
         // stop velocity
         player.collider.velocity.x.lerp(
@@ -31,16 +29,17 @@ pub fn update(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
     check_next_state(player, raylib);
 }
 
+#[inline]
 fn check_next_state(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
     if raylib.is_key_down(player.controls.down) {
-        player.transition(Diving, raylib);
+        StateManager::next_state(player, PlayerState::Diving, raylib);
     } else if player.collider.velocity.y > 0.0 {
-        player.transition(Falling, raylib);
+        StateManager::next_state(player, PlayerState::Falling, raylib);
     } else if player.collider.on_floor() {
         if player.move_dir.x == 0.0 {
-            player.transition(Idle, raylib);
+            StateManager::next_state(player, PlayerState::Idle, raylib);
         } else {
-            player.transition(Running, raylib);
+            StateManager::next_state(player, PlayerState::Running, raylib);
         }
     }
 }

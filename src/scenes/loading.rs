@@ -1,7 +1,5 @@
-use crate::{
-    engine::prelude::{Scene, Sprite2D},
-    paths,
-};
+use crate::{paths, scenes::GlobalEnvironment};
+use rayexlib::prelude::{Scene, Sprite2D};
 use raylib::prelude::{Color, RaylibDraw, RaylibDrawHandle, RaylibHandle, RaylibThread};
 
 /// Loading constant values
@@ -21,16 +19,16 @@ impl Environment {
     }
 }
 
-impl Scene for Environment {
-    fn on_enter(&mut self, raylib: &mut RaylibHandle) {
+impl Scene<GlobalEnvironment> for Environment {
+    fn on_enter(&mut self, global: &mut GlobalEnvironment, raylib: &mut RaylibHandle) {
         raylib.hide_cursor();
     }
 
-    fn on_exit(&mut self, raylib: &mut RaylibHandle) {
+    fn on_exit(&mut self, global: &mut GlobalEnvironment, raylib: &mut RaylibHandle) {
         raylib.show_cursor();
     }
 
-    fn update(&mut self, raylib: &mut RaylibHandle) {
+    fn update(&mut self, global: &mut GlobalEnvironment, raylib: &mut RaylibHandle) {
         let win_width = raylib.get_screen_width() as f32;
         let win_height = raylib.get_screen_height() as f32;
 
@@ -49,7 +47,7 @@ impl Scene for Environment {
             .set_offset_xy(self.icon.half_width(), self.icon.half_width());
     }
 
-    fn draw(&self, raylib: &mut RaylibDrawHandle) {
+    fn draw(&self, global: &GlobalEnvironment, raylib: &mut RaylibDrawHandle) {
         let win_width = raylib.get_screen_width() as f32;
         let win_height = raylib.get_screen_height() as f32;
 

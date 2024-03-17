@@ -1,10 +1,6 @@
 use super::*;
 
-pub fn on_enter(player: &mut Player, raylib: &mut raylib::RaylibHandle) {}
-
-pub fn on_exit(player: &mut Player, raylib: &mut raylib::RaylibHandle) {}
-
-pub fn update(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
+pub fn update(player: &mut Player, raylib: &mut raylib::prelude::RaylibHandle) {
     if player.move_dir.x == 0.0 {
         // stop velocity
         player.collider.velocity.x.lerp(
@@ -28,15 +24,16 @@ pub fn update(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
     check_next_state(player, raylib);
 }
 
+#[inline]
 fn check_next_state(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
     let a = player.collider.on_floor();
     let b = player.move_dir.x == 0.0;
     let c = raylib.is_key_down(player.controls.down);
 
     match (a, b, c) {
-        (true, true, _) => player.transition(Idle, raylib),
-        (true, false, _) => player.transition(Running, raylib),
-        (false, _, false) => player.transition(Falling, raylib),
+        (true, true, _) => StateManager::next_state(player, PlayerState::Idle, raylib),
+        (true, false, _) => StateManager::next_state(player, PlayerState::Running, raylib),
+        (false, _, false) => StateManager::next_state(player, PlayerState::Falling, raylib),
         _ => {}
     };
 }

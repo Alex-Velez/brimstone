@@ -1,12 +1,12 @@
 use super::*;
 
-pub fn on_enter(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
+pub fn on_enter(player: &mut Player, raylib: &mut raylib::prelude::RaylibHandle) {
     if raylib.is_key_down(player.controls.up) {
         player.collider.velocity.y = 0.0;
     }
 }
 
-pub fn on_exit(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
+pub fn on_exit(player: &mut Player, raylib: &mut raylib::prelude::RaylibHandle) {
     if raylib.is_key_down(player.controls.up) {
         // add jump force from wall
         player.collider.velocity.x -= player.collider.colliding.x * player.jump * 1.5;
@@ -17,7 +17,8 @@ pub fn on_exit(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
     player.animation_player.flip_h();
 }
 
-pub fn update(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
+pub fn update(player: &mut Player, raylib: &mut raylib::prelude::RaylibHandle) {
+    // cap player horizontal velocity
     player.collider.velocity.y = player.collider.velocity.y.min(player.max_speed);
 
     // face wall
@@ -37,16 +38,17 @@ pub fn update(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
     check_next_state(player, raylib);
 }
 
+#[inline]
 fn check_next_state(player: &mut Player, raylib: &mut raylib::RaylibHandle) {
     if player.collider.on_floor() {
         if player.move_dir.x == 0.0 {
-            player.transition(Idle, raylib);
+            StateManager::next_state(player, PlayerState::Idle, raylib);
         } else {
-            player.transition(Running, raylib);
+            StateManager::next_state(player, PlayerState::Running, raylib);
         }
     } else {
         if raylib.is_key_down(player.controls.up) && player.move_dir.x == 0.0 {
-            player.transition(Jumping, raylib);
+            StateManager::next_state(player, PlayerState::Jumping, raylib);
         }
     }
 }

@@ -1,14 +1,17 @@
-use crate::engine::prelude::{AnimationPlayer2D, FrameLimiter, Ray2D, Rect2D, StateMachine};
+use rayexlib::{
+    prelude::{
+        AnimationMachineBuilder, AnimationPlayer2D, ColliderInfo, FrameLimiter, Init, Ray2D, Rect2D,
+    },
+    state_manager::StateManager,
+    traits::Renderable,
+};
 use raylib::prelude::{RaylibDraw, RaylibHandle, RaylibThread, Vector2};
 
 mod controls;
-mod default;
 mod states;
 
 use controls::Controls;
 pub use states::PlayerState;
-
-use default::PlayerDefault;
 
 impl Player {
     // animation fps
@@ -68,11 +71,10 @@ pub struct Player {
     // states
     pub controls: Controls,
     pub state: PlayerState,
-    state_machine: StateMachine<PlayerState, Player>,
 }
 
-impl Player {
-    pub fn new(raylib: &mut RaylibHandle, thread: &RaylibThread) -> Self {
+impl Init for Player {
+    fn init(raylib: &mut RaylibHandle, thread: &RaylibThread) -> Self {
         Self {
             // health
             max_health: 100.0,
@@ -95,7 +97,7 @@ impl Player {
             dive: 1.5,
 
             // physics
-            collider: Rect2D::newv(Player::COLLISION_SIZE).with_position(0.0, -100.0),
+            collider: Rect2D::newv(Player::COLLISION_SIZE).with_position(100.0, -100.0),
             ground_ray: Ray2D::new()
                 .with_position(200.0, 100.0)
                 .with_direction(Ray2D::DOWN * 50.0),
@@ -105,16 +107,38 @@ impl Player {
             air_friction: 0.25,
 
             // drawing
-            animation_player: AnimationPlayer2D::player_default(raylib, thread),
+            animation_player: {
+                use crate::paths::player::advn;
+
+                // add animations
+                let mut b = AnimationMachineBuilder::new(Player::SPRITE_SIZE);
+                b.add_animation(PlayerState::Idle, advn::IDLE, 4, Player::FPS_IDLE);
+                b.add_animation(PlayerState::Running, advn::RUN, 6, Player::FPS_RUN);
+                b.add_animation(PlayerState::Jumping, advn::JUMP, 4, Player::FPS_JUMP);
+                b.add_animation(PlayerState::Falling, advn::FALL, 2, Player::FPS_FALL);
+                b.add_animation(PlayerState::Crouching, advn::CRID, 4, Player::FPS_CRID);
+                b.add_animation(PlayerState::CrouchWalking, advn::CRWK, 6, Player::FPS_CRWK);
+                b.add_animation(PlayerState::Diving, advn::FALL, 2, Player::FPS_DIVE);
+                b.add_animation(PlayerState::WallSliding, advn::WSLD, 2, Player::FPS_WSLD);
+
+                // build animation player
+                let mut ap = b.build(raylib, thread);
+
+                // resize all animations
+                ap.set_scale(Player::SPRITE_SCALE);
+                ap.set_offset(Player::SPRITE_OFFSET);
+                ap
+            },
 
             // states
             controls: Controls::default(),
-            state: PlayerState::Idle,
-            state_machine: StateMachine::player_default(raylib, thread),
+            state: PlayerState::default(),
         }
     }
+}
 
-    pub fn update(&mut self, raylib: &mut RaylibHandle) {
+impl Renderable for Player {
+    fn update(&mut self, raylib: &mut RaylibHandle) {
         // calculate move direction
         self.move_dir = Vector2 {
             x: (raylib.is_key_down(self.controls.right) as i8
@@ -143,9 +167,7 @@ impl Player {
         };
 
         // current state update
-        if let Some(update_fn) = self.state_machine.update.get(&self.state) {
-            update_fn(self, raylib);
-        }
+        StateManager::update(self, raylib);
 
         // terminal velocity
         let terminal_vel = self.gravity * 2.0;
@@ -159,30 +181,19 @@ impl Player {
         self.animation_player.next_frame(&self.state);
     }
 
-    /// Transition between states
-    pub fn transition(&mut self, next_state: PlayerState, raylib: &mut RaylibHandle) {
-        // on exit func for current state
-        if let Some(exit_fn) = self.state_machine.exit.get(&self.state) {
-            exit_fn(self, raylib);
-        }
-
-        // set next state
-        self.state = next_state;
-
-        // on enter func for new state
-        if let Some(enter_fn) = self.state_machine.enter.get(&self.state) {
-            enter_fn(self, raylib);
-        }
-    }
-
-    pub fn draw(&self, raylib: &mut impl RaylibDraw) {
+    fn draw(&self, raylib: &mut impl RaylibDraw) {
         // sprite
         self.animation_player.draw(&self.state, raylib);
     }
+}
 
-    /// get player center position
-    pub fn get_center(&self) -> Vector2 {
-        self.collider.position + (self.collider.size / 2.0)
+impl ColliderInfo for Player {
+    fn center(&self) -> Vector2 {
+        self.collider.center()
+    }
+
+    fn velocity(&self) -> Vector2 {
+        self.collider.velocity()
     }
 }
 
@@ -196,24 +207,18 @@ impl Player {
     }
 
     pub fn reset_colliding(&mut self) {
-        // reset player collisons
+        // reset player collisions
         self.collider.reset_colliding();
         self.ground_ray.reset_colliding();
     }
 
     pub fn collide_rects(&mut self, raylib: &mut RaylibHandle, floors: &mut Vec<Rect2D>) {
-        // ground ray check conditions
-        let mut ray_conditions = false;
-
         // collide player & floors
         for floor in floors {
             if self.collider.collide_rect(floor)
                 && self.collider.on_floor()
                 && self.move_dir.y == 1.0
             {
-                // allows ray check
-                ray_conditions = true;
-
                 // update ray position
                 self.ground_ray.set_position(
                     self.collider.position.x + (Player::CROUCH_SIZE / 2.0),
@@ -222,16 +227,7 @@ impl Player {
 
                 // check ray collision
                 self.ground_ray.check_rect(floor);
-            };
-        }
-
-        // player ledge to wall slide transition
-        if !self.ground_ray.is_colliding() && ray_conditions {
-            // move collider, force collision resolution to wall
-            self.collider.position.y += Player::CROUCH_SIZE / 2.0;
-            self.collider.reset_colliding();
-            self.reset_hitbox_from_crouch();
-            self.transition(PlayerState::WallSliding, raylib);
+            }
         }
     }
 }
