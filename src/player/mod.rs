@@ -215,6 +215,8 @@ impl Player {
     pub fn collide_rects(&mut self, raylib: &mut RaylibHandle, floors: &mut Vec<Rect2D>) {
         // collide player & floors
         for floor in floors {
+            floor.reset_colliding();
+
             if self.collider.collide_rect(floor)
                 && self.collider.on_floor()
                 && self.move_dir.y == 1.0

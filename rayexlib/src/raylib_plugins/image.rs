@@ -1,7 +1,5 @@
-use super::{Window, MISSING_TEXTURE};
+use super::MISSING_TEXTURE;
 use raylib::prelude::Image;
-
-const DEFAULT_TITLE: &str = Window::DEFAULT_TITLE;
 
 pub trait ImagePlugin {
     fn from_path(path: &str) -> Image;
@@ -14,7 +12,7 @@ impl ImagePlugin for Image {
             Ok(image) => image,
             Err(_) => {
                 println!("RAYLIB: Could not load image!");
-                println!("{DEFAULT_TITLE}: Loading default image...");
+                println!("Engine: Loading default image...");
                 Image::load_image_from_mem(
                     ".png",
                     &MISSING_TEXTURE.to_vec(),
@@ -32,7 +30,7 @@ impl ImagePlugin for Image {
                 Ok(image) => image,
                 Err(_) => {
                     println!("RAYLIB: Could not load image!");
-                    println!("{DEFAULT_TITLE}: Loading default image...");
+                    println!("Engine: Loading default image...");
                     Image::load_image_from_mem(
                         ".png",
                         &MISSING_TEXTURE.to_vec(),

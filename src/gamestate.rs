@@ -35,13 +35,27 @@ impl GameState {
         // initialize raylib audio
         let rl_audio = raylib::audio::RaylibAudio::init_audio_device();
 
-        // initialize raylib
+        // initialize raylib (1920:1080 -> 864:486) (20/9)
         let (mut raylib, thread) = raylib::init()
-            .title(Window::DEFAULT_TITLE)
-            .size(Window::DEFAULT_WIDTH, Window::DEFAULT_HEIGHT)
+            .title("Brimstone")
+            .size(100, 100)
             .resizable()
             // .undecorated()
             .build();
+
+        // Default window size
+        let (monitor_width, monitor_height) = unsafe {
+            let current_monitor = raylib::ffi::GetCurrentMonitor();
+            let monitor_width = raylib::ffi::GetMonitorWidth(current_monitor);
+            let monitor_height = raylib::ffi::GetMonitorHeight(current_monitor);
+            (monitor_width, monitor_height)
+        };
+        let window_width = (monitor_width as f32 * Window::DEFAULT_SIZE_SCALAR) as i32;
+        let window_height = (monitor_height as f32 * Window::DEFAULT_SIZE_SCALAR) as i32;
+        let window_x = (monitor_width - window_width) / 2;
+        let window_y = (monitor_height - window_height) / 2;
+        raylib.set_window_size(window_width, window_height);
+        raylib.set_window_position(window_x, window_y);
 
         // settings
         raylib.set_window_icon(Image::from_path(paths::ICON));
@@ -67,7 +81,6 @@ impl GameState {
         while !raylib.window_should_close() && !self.exit {
             // current scene update function
             self.update(raylib);
-            // self.state_manager.update(, raylib);
 
             // init draw handle
             let mut rl = raylib.begin_drawing(&thread);
@@ -143,8 +156,8 @@ impl GameState {
             self.debug_update(raylib);
         } else {
             // fps checker
-            if raylib.get_fps() < 15 && raylib.get_time() > 2.0 {
-                println!("{}: FPS too low for engine!", Window::DEFAULT_TITLE);
+            if raylib.get_fps() < 15 && raylib.get_time() > 5.0 {
+                println!("Engine: FPS too low for engine!");
                 self.exit();
             }
         }

@@ -29,6 +29,7 @@ pub fn update(player: &mut Player, raylib: &mut raylib::prelude::RaylibHandle) {
     if player.collider.on_floor() && player.move_dir.y == 1.0 && !player.ground_ray.is_colliding() {
         // move collider, force collision resolution to wall
         player.collider.position.y += Player::CROUCH_SIZE / 2.0;
+        player.collider.position.x += Player::COLLISION_SIZE.x * player.move_dir.x;
         player.collider.reset_colliding();
         player.reset_hitbox_from_crouch();
 

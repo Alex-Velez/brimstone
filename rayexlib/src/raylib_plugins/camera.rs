@@ -120,15 +120,17 @@ impl CameraEx2D {
     }
 
     pub fn follow(&mut self, target: Vector2, raylib: &mut RaylibHandle) {
-        let win_width = raylib.get_screen_width() as f32;
-        let win_height = raylib.get_screen_height() as f32;
+        let screen_width = raylib.get_screen_width() as f32;
+        let screen_height = raylib.get_screen_height() as f32;
+        let win_width = screen_width * Window::DEFAULT_SIZE_SCALAR;
+        let win_height = screen_height * Window::DEFAULT_SIZE_SCALAR;
+        let win_ratio = win_width * win_height;
 
         // keep target in center of screen
-        self.camera.offset = Vector2::new(win_width / 2.0, win_height / 2.0);
+        self.camera.offset = Vector2::new(screen_width / 2.0, screen_height / 2.0);
 
         // adjust zoom scale
-        self.zoom_scale =
-            ((win_width * win_height) / (Window::DEFAULT_SIZE.x * Window::DEFAULT_SIZE.y)).sqrt();
+        self.zoom_scale = ((screen_width * screen_height) / (win_ratio)).sqrt();
 
         // frame time
         let frame_time = raylib.get_frame_time_limited();

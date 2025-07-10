@@ -9,7 +9,7 @@ pub fn on_enter(player: &mut Player, raylib: &mut raylib::prelude::RaylibHandle)
 pub fn on_exit(player: &mut Player, raylib: &mut raylib::prelude::RaylibHandle) {
     if raylib.is_key_down(player.controls.up) {
         // add jump force from wall
-        player.collider.velocity.x -= player.collider.colliding.x * player.jump * 1.5;
+        player.collider.velocity.x -= player.collider.direction().x * player.jump * 1.5;
     }
 
     // update sprite
@@ -18,7 +18,7 @@ pub fn on_exit(player: &mut Player, raylib: &mut raylib::prelude::RaylibHandle) 
 }
 
 pub fn update(player: &mut Player, raylib: &mut raylib::prelude::RaylibHandle) {
-    // cap player horizontal velocity
+    // cap player vertical velocity
     player.collider.velocity.y = player.collider.velocity.y.min(player.max_speed);
 
     // face wall
@@ -30,7 +30,7 @@ pub fn update(player: &mut Player, raylib: &mut raylib::prelude::RaylibHandle) {
 
     // change sprite offset
     player.animation_player.set_offset_xy(
-        Player::SPRITE_OFFSET.x - (player.collider.colliding.x * Player::SPRITE_SL_SHIFT),
+        Player::SPRITE_OFFSET.x - (player.collider.direction().x * Player::SPRITE_SL_SHIFT),
         Player::SPRITE_OFFSET.y,
     );
 

@@ -142,6 +142,8 @@ impl Scene<GlobalEnvironment> for Environment {
             );
         }
 
+        raylib.draw_fps(0, 0);
+
         // draw logo
         self.logo.draw(raylib);
     }

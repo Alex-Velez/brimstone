@@ -1,7 +1,5 @@
-use super::{Window, MISSING_TEXTURE};
+use super::MISSING_TEXTURE;
 use raylib::prelude::{Image, RaylibHandle, RaylibThread, Texture2D};
-
-const DEFAULT_TITLE: &str = Window::DEFAULT_TITLE;
 
 pub trait Texture2DPlugin {
     fn from_path(raylib: &mut RaylibHandle, thread: &RaylibThread, path: &str) -> Texture2D;
@@ -18,7 +16,7 @@ impl Texture2DPlugin for Texture2D {
             Ok(texture) => texture,
             Err(_) => {
                 println!("RAYLIB: Could not load texture!");
-                println!("{DEFAULT_TITLE}: Loading default texture.");
+                println!("Engine: Loading default texture.");
                 raylib
                     .load_texture_from_image(
                         thread,
@@ -45,7 +43,7 @@ impl Texture2DPlugin for Texture2D {
                 Ok(texture) => texture,
                 Err(_) => {
                     println!("RAYLIB: Could not load texture!");
-                    println!("{DEFAULT_TITLE}: Loading default texture.");
+                    println!("Engine: Loading default texture.");
                     raylib
                         .load_texture_from_image(
                             thread,
